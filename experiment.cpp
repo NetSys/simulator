@@ -24,6 +24,7 @@
 
 #include "factory.h"
 #include "random_variable.h"
+#include "flow_generator.h"
 #include "fountainflow.h"
 #include "stats.h"
 #include "capabilityflow.h"
@@ -232,7 +233,6 @@ void validate_flow(Flow* f){
         << f->start_time << "\n";
 }
 
-
 void debug_flow_stats(std::deque<Flow *> flows){
     std::map<int,int> freq;
     for (uint32_t i = 0; i < flows.size(); i++) {
@@ -260,9 +260,7 @@ void assign_flow_deadline(std::deque<Flow *> flows)
     }
 }
 
-
-//same as run_pFabric_experiment except with this generate_flows.
-void run_fixedDistribution_experiment(int argc, char **argv, uint32_t exp_type) {
+void run_experiment(int argc, char **argv, uint32_t exp_type) {
     if (argc < 3) {
         std::cout << "Usage: <exe> exp_type conf_file" << std::endl;
         return;
@@ -288,23 +286,29 @@ void run_fixedDistribution_experiment(int argc, char **argv, uint32_t exp_type) 
     }
 
     uint32_t num_flows = params.num_flows_to_run;
-
-    //no reading flows to schedule in this mode.
+    
+    FlowGenerator *fg;
     if (params.use_flow_trace) {
-        read_flows_to_schedule(params.cdf_or_flow_trace, num_flows, topology);
+        fg = new FlowReader(num_flows, topology, params.cdf_or_flow_trace);
+        fg->make_flows();
     }
     else {
         if (params.ddc) {
-            generate_flows_to_schedule_fd_ddc(params.cdf_or_flow_trace, num_flows, topology);
+            // TODO ddc flow gen not yet implemented, need to move to FlowGenerator
+            assert(false);
+            //generate_flows_to_schedule_fd_ddc(params.cdf_or_flow_trace, num_flows, topology);
         }
         else if (params.traffic_imbalance < 0.01) {
-            FlowGenerator *fg = new FlowGenerator(num_flows, topology, params.cdf_or_flow_trace);
+            fg = new FlowGenerator(num_flows, topology, params.cdf_or_flow_trace);
             fg->make_flows();
         }
         else {
-            generate_flows_to_schedule_fd_with_skew(params.cdf_or_flow_trace, num_flows, topology);
+            // TODO skew flow gen not yet implemented, need to move to FlowGenerator
+            assert(false);
+            //generate_flows_to_schedule_fd_with_skew(params.cdf_or_flow_trace, num_flows, topology);
         }
     }
+
     if (params.deadline) {
         assign_flow_deadline(flows_to_schedule);
     }
@@ -413,8 +417,6 @@ void run_fixedDistribution_experiment(int argc, char **argv, uint32_t exp_type) 
         fct += (1000000.0 * f->flow_completion_time);
         oracle_fct += topology->get_oracle_fct(f);
 
-
-
         data_pkt_sent += std::min(f->size_in_pkt, (int)f->total_pkt_sent);
         parity_pkt_sent += std::max(0, (int)(f->total_pkt_sent - f->size_in_pkt));
         data_pkt_drop += f->data_pkt_drop;
@@ -468,32 +470,9 @@ void run_fixedDistribution_experiment(int argc, char **argv, uint32_t exp_type) 
     std::cout << params.param_str << "\n";
 }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-/* Runs a initialized scenario */
+// TODO new experiment types (continuous flow gen) not yet implemented
+/*
+// Runs a initialized scenario 
 void run_scenario_shuffle_traffic() {
   // Flow Arrivals create new flow arrivals
   // Add the first flow arrival
@@ -632,4 +611,5 @@ void run_fixedDistribution_experiment_shuffle_traffic(int argc, char **argv, uin
   "\n";
   printQueueStatistics(topo);
 }
+*/
 
