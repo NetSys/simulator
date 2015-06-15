@@ -17,7 +17,6 @@
 #include "flow.h"
 #include "random_variable.h"
 
-
 //TODO import globals
 
 #define FLOW_ARRIVAL 0
@@ -85,32 +84,29 @@ struct EventComparator
     }
 };
 
-
+//A flow arrival event Only used for FlowCreation
+class FlowCreationForInitializationEvent : public Event {
+public:
+  FlowCreationForInitializationEvent(
+    double time, 
+    Host *src, 
+    Host *dst,
+    EmpiricalRandomVariable *nv_bytes,
+    ExponentialRandomVariable *nv_intarr
+  );
+  ~FlowCreationForInitializationEvent();
+  void process_event();
+  Host *src;
+  Host *dst;
+  EmpiricalRandomVariable *nv_bytes;
+  ExponentialRandomVariable *nv_intarr;
+};
 
 //A flow arrival event
 class FlowArrivalEvent : public Event {
 public:
   FlowArrivalEvent(double time, Flow *flow);
   ~FlowArrivalEvent();
-  void process_event();
-  Flow *flow;
-};
-
-//A flow processing event
-class FlowProcessingEvent : public Event {
-public:
-  FlowProcessingEvent(double time, Flow *flow);
-  ~FlowProcessingEvent();
-
-  void process_event();
-  Flow *flow;
-};
-
-//A flow finished event
-class FlowFinishedEvent : public Event {
-public:
-  FlowFinishedEvent(double time, Flow *flow);
-  ~FlowFinishedEvent();
   void process_event();
   Flow *flow;
 };
@@ -142,39 +138,6 @@ public:
   Queue *queue;
 };
 
-class RetxTimeoutEvent : public Event {
-public:
-  RetxTimeoutEvent(double time, Flow *flow);
-  ~RetxTimeoutEvent();
-  void process_event();
-  Flow *flow;
-};
-
-
-//A flow arrival event Only used for FlowCreation
-class FlowCreationForInitializationEvent : public Event {
-public:
-  FlowCreationForInitializationEvent(double time, Host *src, Host *dst,
-                                     EmpiricalRandomVariable *nv_bytes,
-                                     ExponentialRandomVariable *nv_intarr);
-  ~FlowCreationForInitializationEvent();
-  void process_event();
-  Host *src;
-  Host *dst;
-  EmpiricalRandomVariable *nv_bytes;
-  ExponentialRandomVariable *nv_intarr;
-};
-
-class FlowCreationForInitializationEventWithTimeLimit : public FlowCreationForInitializationEvent {
-public:
-  double time_limit;
-  FlowCreationForInitializationEventWithTimeLimit(
-    double time_limit, double time, Host *src, Host *dst,
-    EmpiricalRandomVariable *nv_bytes, ExponentialRandomVariable *nv_intarr
-  );
-  void process_event();
-};
-
 class LoggingEvent : public Event {
 public:
   LoggingEvent(double time);
@@ -183,6 +146,17 @@ public:
   void process_event();
   double ttl;
 };
+
+//A flow finished event
+class FlowFinishedEvent : public Event {
+public:
+  FlowFinishedEvent(double time, Flow *flow);
+  ~FlowFinishedEvent();
+  void process_event();
+  Flow *flow;
+};
+
+// TODO everything below here should be grouped into other files
 
 class HostProcessingEvent : public Event {
 public:
@@ -193,6 +167,23 @@ public:
   SchedulingHost *host;
 };
 
+//A flow processing event
+class FlowProcessingEvent : public Event {
+public:
+  FlowProcessingEvent(double time, Flow *flow);
+  ~FlowProcessingEvent();
+
+  void process_event();
+  Flow *flow;
+};
+
+class RetxTimeoutEvent : public Event {
+public:
+  RetxTimeoutEvent(double time, Flow *flow);
+  ~RetxTimeoutEvent();
+  void process_event();
+  Flow *flow;
+};
 
 class CapabilityProcessingEvent : public Event {
 public:

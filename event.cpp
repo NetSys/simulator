@@ -24,13 +24,12 @@
 #include "fastpasshost.h"
 #include "fastpassflow.h"
 
-extern Topology *topology;
-extern std::priority_queue<Event *, std::vector<Event *>,
-                           EventComparator> event_queue;
+extern Topology* topology;
+extern std::priority_queue<Event*, std::vector<Event*>, EventComparator> event_queue;
 extern double current_time;
 extern DCExpParams params;
-extern std::deque<Event *> flow_arrivals;
-extern std::deque<Flow *> flows_to_schedule;
+extern std::deque<Event*> flow_arrivals;
+extern std::deque<Flow*> flows_to_schedule;
 
 extern uint32_t num_outstanding_packets;
 extern uint32_t max_outstanding_packets;
@@ -44,7 +43,7 @@ extern uint32_t total_finished_flows;
 
 extern EmpiricalRandomVariable *nv_bytes;
 
-void add_to_event_queue(Event *ev) {
+void add_to_event_queue(Event* ev) {
   event_queue.push(ev);
 }
 
@@ -68,12 +67,46 @@ Event::Event(uint32_t type, double time) {
 Event::~Event() {
 }
 
+/* Flow Arrival */
+FlowCreationForInitializationEvent::FlowCreationForInitializationEvent(
+    double time, 
+    Host *src, 
+    Host *dst,
+    EmpiricalRandomVariable *nv_bytes, 
+    ExponentialRandomVariable *nv_intarr
+  ) : Event(FLOW_CREATION_EVENT, time) {
+  this->src = src;
+  this->dst = dst;
+  this->nv_bytes = nv_bytes;
+  this->nv_intarr = nv_intarr;
+}
+
+FlowCreationForInitializationEvent::~FlowCreationForInitializationEvent() {}
+
+void FlowCreationForInitializationEvent::process_event() {
+  uint32_t id = flows_to_schedule.size();
+  uint32_t size = nv_bytes->value() * 1460;
+  flows_to_schedule.push_back(Factory::get_flow(id, time, size, src, dst, params.flow_type));
+
+  //std::cout << "event.cpp::FlowCreation:" << 1000000.0 * time << " Generating new flow " << id << " of size "
+  // << size << " between " << src->id << " " << dst->id << "\n";
+
+  double tnext = time + nv_intarr->value();
+  add_to_event_queue(
+    new FlowCreationForInitializationEvent(
+      tnext,
+      src, 
+      dst,
+      nv_bytes, 
+      nv_intarr
+    )
+  );
+}
 
 /* Flow Arrival */
 int flow_arrival_count = 0;
 
-FlowArrivalEvent::FlowArrivalEvent(double time, Flow *flow)
-  : Event(FLOW_ARRIVAL, time) {
+FlowArrivalEvent::FlowArrivalEvent(double time, Flow* flow) : Event(FLOW_ARRIVAL, time) {
   this->flow = flow;
 }
 
@@ -95,7 +128,6 @@ void FlowArrivalEvent::process_event() {
     add_to_event_queue(flow_arrivals.front());
     flow_arrivals.pop_front();
   }
-
 
   if(params.num_flows_to_run > 10 && flow_arrival_count % (int)(params.num_flows_to_run * 0.1) == 0){
       double curr_time = get_current_time();
@@ -124,7 +156,6 @@ void FlowArrivalEvent::process_event() {
   }
 
 }
-
 
 
 /* Flow Processing */
@@ -300,34 +331,6 @@ void RetxTimeoutEvent::process_event() {
   flow->handle_timeout();
 }
 
-
-/* Flow Arrival */
-FlowCreationForInitializationEvent::FlowCreationForInitializationEvent(
-  double time, Host *src, Host *dst,
-  EmpiricalRandomVariable *nv_bytes, ExponentialRandomVariable *nv_intarr)
-  : Event(FLOW_CREATION_EVENT, time) {
-  this->src = src;
-  this->dst = dst;
-  this->nv_bytes = nv_bytes;
-  this->nv_intarr = nv_intarr;
-}
-
-FlowCreationForInitializationEvent::~FlowCreationForInitializationEvent() {
-}
-
-void FlowCreationForInitializationEvent::process_event() {
-  uint32_t id = flows_to_schedule.size();
-  uint32_t size = nv_bytes->value() * 1460;
-  flows_to_schedule.push_back(Factory::get_flow(id, time, size,
-                                                src, dst, params.flow_type));
-  //std::cout << "event.cpp::FlowCreation:" << 1000000.0 * time << " Generating new flow " << id << " of size "
-  // << size << " between " << src->id << " " << dst->id << "\n";
-
-  double tnext = time + nv_intarr->value();
-  add_to_event_queue(new FlowCreationForInitializationEvent(tnext,
-                                         src, dst,
-                                         nv_bytes, nv_intarr));
-}
 
 
 FlowCreationForInitializationEventWithTimeLimit::FlowCreationForInitializationEventWithTimeLimit(
