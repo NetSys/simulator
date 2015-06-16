@@ -157,63 +157,6 @@ void FlowArrivalEvent::process_event() {
 
 }
 
-
-/* Flow Processing */
-FlowProcessingEvent::FlowProcessingEvent(double time, Flow *flow)
-  : Event(FLOW_PROCESSING, time) {
-  this->flow = flow;
-}
-FlowProcessingEvent::~FlowProcessingEvent() {
-  if (flow->flow_proc_event == this) {
-    flow->flow_proc_event = NULL;
-  }
-}
-void FlowProcessingEvent::process_event() {
-  this->flow->send_pending_data();
-}
-
-
-
-/* Flow Finished */
-FlowFinishedEvent::FlowFinishedEvent(double time, Flow *flow)
- : Event(FLOW_FINISHED, time) {
-  this->flow = flow;
-}
-FlowFinishedEvent::~FlowFinishedEvent() {
-}
-void FlowFinishedEvent::process_event() {
-    this->flow->finished = true;
-    this->flow->finish_time = get_current_time();
-    this->flow->flow_completion_time = this->flow->finish_time - this->flow->start_time;
-    total_finished_flows++;
-    
-    if(print_flow_result()){
-        std::cout << std::setprecision(4) << std::fixed ;
-        std::cout
-          << flow->id << " "
-          << flow->size << " "
-          << flow->src->id << " "
-          << flow->dst->id << " "
-          << 1000000 * flow->start_time << " "
-          << 1000000 * flow->finish_time << " "
-          << 1000000.0 * flow->flow_completion_time << " "
-          << topology->get_oracle_fct(flow) << " "
-          << 1000000 * flow->flow_completion_time / topology->get_oracle_fct(flow) << " "
-          << flow->total_pkt_sent << "/" << (flow->size/flow->mss) << "//" << flow->received_count << " "
-          << flow->data_pkt_drop << "/" << flow->ack_pkt_drop << "/" << flow->pkt_drop << " ";
-        if(params.flow_type == FOUNTAIN_FLOW_PIPELINE_SCHEDULING_HOST)
-            std::cout << ((FountainFlowWithPipelineSchedulingHost*)flow)->first_send_time - flow->start_time << " ";
-        if(params.flow_type == CAPABILITY_FLOW)
-        {
-            std::cout << ((CapabilityFlow*)flow)->capability_count << " ";
-        }
-        std::cout << 1000000 * (flow->first_byte_send_time - flow->start_time) << " ";
-        std::cout << std::endl;
-        std::cout << std::setprecision(9) << std::fixed ;
-    }
-}
-
-
 /* Packet Queuing */
 PacketQueuingEvent::PacketQueuingEvent(double time, Packet *packet,
   Queue *queue) : Event(PACKET_QUEUING, time) {
@@ -233,8 +176,6 @@ void PacketQueuingEvent::process_event() {
   }
   else if( params.preemptive_queue && this->packet->pf_priority < queue->packet_transmitting->pf_priority) {
     double remaining_percentage = (queue->queue_proc_event->time - get_current_time()) / queue->get_transmission_delay(queue->packet_transmitting->size);
-    if(remaining_percentage < -0.001 || remaining_percentage > 1.001)
-      std::cout << "sth is wrong!!!!! evt time:" << queue->queue_proc_event->time << " curr:" << get_current_time() << " tran delay:" << queue->get_transmission_delay(queue->packet_transmitting->size) << " %:" << remaining_percentage << "\n";
 
     if(remaining_percentage > 0.01){
       queue->preempt_current_transmission();
@@ -249,8 +190,6 @@ void PacketQueuingEvent::process_event() {
   queue->enque(packet);
 }
 
-
-
 /* Packet Arrival */
 PacketArrivalEvent::PacketArrivalEvent(double time, Packet *packet)
   : Event(PACKET_ARRIVAL, time) {
@@ -263,8 +202,6 @@ PacketArrivalEvent::~PacketArrivalEvent() {
 void PacketArrivalEvent::process_event() {
   packet->flow->receive(packet);
 }
-
-
 
 /* Queue Processing */
 QueueProcessingEvent::QueueProcessingEvent(double time, Queue *queue)
@@ -315,52 +252,6 @@ void QueueProcessingEvent::process_event() {
   }
 }
 
-
-
-/* Retx Timeout */
-RetxTimeoutEvent::RetxTimeoutEvent(double time, Flow *flow)
-  : Event(RETX_TIMEOUT, time) {
-  this->flow = flow;
-}
-RetxTimeoutEvent::~RetxTimeoutEvent() {
-  if (flow->retx_event == this) {
-    flow->retx_event = NULL;
-  }
-}
-void RetxTimeoutEvent::process_event() {
-  flow->handle_timeout();
-}
-
-
-
-FlowCreationForInitializationEventWithTimeLimit::FlowCreationForInitializationEventWithTimeLimit(
-  double time_limit, double time, Host *src, Host *dst,
-  EmpiricalRandomVariable *nv_bytes, ExponentialRandomVariable *nv_intarr
-)
-  : FlowCreationForInitializationEvent(time, src, dst, nv_bytes, nv_intarr) {
-    this->time_limit = time_limit;
-}
-
-void FlowCreationForInitializationEventWithTimeLimit::process_event() {
-  uint32_t id = flows_to_schedule.size();
-  uint32_t size = nv_bytes->value() * 1460;
-
-  flows_to_schedule.push_back(
-    Factory::get_flow(id, time, size, src, dst, params.flow_type)
-  );
-
-  std::cout << 1000000.0 * time << " Generating new flow " << id << " of size "
-   << size << " between " << src->id << " " << dst->id << "\n";
-
-  double tnext = time + nv_intarr->value();
-  if (tnext < time_limit)
-    add_to_event_queue(
-      new FlowCreationForInitializationEventWithTimeLimit(
-        time_limit, tnext, src, dst, nv_bytes, nv_intarr
-      )
-    );
-}
-
 LoggingEvent::LoggingEvent(double time) : Event(LOGGING, time){
   this->ttl = 1e10;
 }
@@ -402,6 +293,45 @@ void LoggingEvent::process_event() {
   }
 }
 
+/* Flow Finished */
+FlowFinishedEvent::FlowFinishedEvent(double time, Flow *flow)
+  : Event(FLOW_FINISHED, time) {
+  this->flow = flow;
+}
+
+FlowFinishedEvent::~FlowFinishedEvent() {}
+
+void FlowFinishedEvent::process_event() {
+    this->flow->finished = true;
+    this->flow->finish_time = get_current_time();
+    this->flow->flow_completion_time = this->flow->finish_time - this->flow->start_time;
+    total_finished_flows++;
+    
+    if (print_flow_result()) {
+        std::cout << std::setprecision(4) << std::fixed ;
+        std::cout
+          << flow->id << " "
+          << flow->size << " "
+          << flow->src->id << " "
+          << flow->dst->id << " "
+          << 1000000 * flow->start_time << " "
+          << 1000000 * flow->finish_time << " "
+          << 1000000.0 * flow->flow_completion_time << " "
+          << topology->get_oracle_fct(flow) << " "
+          << 1000000 * flow->flow_completion_time / topology->get_oracle_fct(flow) << " "
+          << flow->total_pkt_sent << "/" << (flow->size/flow->mss) << "//" << flow->received_count << " "
+          << flow->data_pkt_drop << "/" << flow->ack_pkt_drop << "/" << flow->pkt_drop << " ";
+        if(params.flow_type == CAPABILITY_FLOW) {
+            std::cout << ((CapabilityFlow*)flow)->capability_count << " ";
+        }
+        std::cout << 1000000 * (flow->first_byte_send_time - flow->start_time) << " ";
+        std::cout << std::endl;
+        std::cout << std::setprecision(9) << std::fixed ;
+    }
+}
+
+
+// TODO everything below here should be grouped into other files
 
 HostProcessingEvent::HostProcessingEvent(double time, SchedulingHost *h) : Event(HOST_PROCESSING, time) {
     this->host = h;
@@ -418,12 +348,41 @@ void HostProcessingEvent::process_event() {
     this->host->send();
 }
 
+/* Flow Processing */
+FlowProcessingEvent::FlowProcessingEvent(double time, Flow *flow)
+  : Event(FLOW_PROCESSING, time) {
+  this->flow = flow;
+}
+
+FlowProcessingEvent::~FlowProcessingEvent() {
+  if (flow->flow_proc_event == this) {
+    flow->flow_proc_event = NULL;
+  }
+}
+
+void FlowProcessingEvent::process_event() {
+  this->flow->send_pending_data();
+}
+
+/* Retx Timeout */
+RetxTimeoutEvent::RetxTimeoutEvent(double time, Flow *flow)
+  : Event(RETX_TIMEOUT, time) {
+  this->flow = flow;
+}
+
+RetxTimeoutEvent::~RetxTimeoutEvent() {
+  if (flow->retx_event == this) {
+    flow->retx_event = NULL;
+  }
+}
+
+void RetxTimeoutEvent::process_event() {
+  flow->handle_timeout();
+}
 
 
-
-
-
-CapabilityProcessingEvent::CapabilityProcessingEvent(double time, CapabilityHost *h, bool is_timeout) : Event(CAPABILITY_PROCESSING, time) {
+CapabilityProcessingEvent::CapabilityProcessingEvent(double time, CapabilityHost *h, bool is_timeout) 
+    : Event(CAPABILITY_PROCESSING, time) {
     this->host = h;
     this->is_timeout_evt = is_timeout;
 }
@@ -438,7 +397,6 @@ void CapabilityProcessingEvent::process_event() {
     this->host->capa_proc_evt = NULL;
     this->host->send_capability();
 }
-
 
 
 MagicHostScheduleEvent::MagicHostScheduleEvent(double time, MagicHost *h) : Event(MAGIC_HOST_SCHEDULE, time) {
