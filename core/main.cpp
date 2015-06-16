@@ -43,12 +43,8 @@ uint32_t arrival_packets_count = 0;
 uint32_t total_finished_flows = 0;
 
 extern DCExpParams params;
-extern double get_current_time();
-extern void add_to_event_queue(Event *);
-extern int get_event_queue_size();
 uint32_t duplicated_packets_received = 0;
 double start_time = -1;
-
 
 const std::string currentDateTime() {
     time_t     now = time(0);
@@ -62,6 +58,17 @@ const std::string currentDateTime() {
     return buf;
 }
 
+void add_to_event_queue(Event* ev) {
+  event_queue.push(ev);
+}
+
+int get_event_queue_size() {
+  return event_queue.size();
+}
+
+double get_current_time() {
+  return current_time; // in us
+}
 
 /* Runs a initialized scenario */
 void run_scenario() {
