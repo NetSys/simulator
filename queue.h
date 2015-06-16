@@ -39,8 +39,6 @@ public:
   std::vector<Event*> busy_events;
   Packet* packet_transmitting;
 
-
-
   Node *src;
   Node *dst;
 
@@ -50,9 +48,8 @@ public:
   double propagation_delay;
   bool interested;
 
-  uint64_t dropss; uint64_t dropsl; uint64_t dropll;
   uint64_t pkt_drop;
-  uint64_t spary_counter;
+  uint64_t spray_counter;
 
   int location;
 };

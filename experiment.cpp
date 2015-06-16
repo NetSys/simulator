@@ -260,6 +260,66 @@ void assign_flow_deadline(std::deque<Flow *> flows)
     }
 }
 
+void printQueueStatistics(Topology *topo) {
+    double totalSentFromHosts = 0;
+
+    uint64_t dropAt[4];
+    uint64_t total_drop = 0;
+    for (auto i = 0; i < 4; i++) {
+        dropAt[i] = 0;
+    }
+
+    for (auto i = 0; i < topo->hosts.size(); i++) {
+        int location = topo->hosts[i]->queue->location;
+        dropAt[location] += topo->hosts[i]->queue->pkt_drop;
+    }
+
+
+    for (uint i = 0; i < topo->switches.size(); i++) {
+        for (uint j = 0; j < topo->switches[i]->queues.size(); j++) {
+            int location = topo->switches[i]->queues[j]->location;
+            dropAt[location] += topo->switches[i]->queues[j]->pkt_drop;
+        }
+    }
+
+    for (int i = 0; i < 4; i++) {
+        total_drop += dropAt[i];
+    }
+    for (int i = 0; i < 4; i++) {
+        std::cout << "Hop:" << i << " Drp:" << dropAt[i] << "("  << (int)((double)dropAt[i]/total_drop * 100) << "%) ";
+    }
+
+    for (auto h = (topo->hosts).begin(); h != (topo->hosts).end(); h++) {
+        totalSentFromHosts += (*h)->queue->b_departures;
+    }
+
+    std::cout << " Overall:" << std::setprecision(2) <<(double)total_drop*1460/totalSentFromHosts << "\n";
+
+    double totalSentToHosts = 0;
+    int drop_ss = 0, drop_sl = 0, drop_ll = 0;
+    for (auto tor = (topo->switches).begin(); tor != (topo->switches).end(); tor++) {
+        for (auto q = ((*tor)->queues).begin(); q != ((*tor)->queues).end(); q++) {
+            if ((*q)->rate == params.bandwidth) totalSentToHosts += (*q)->b_departures;
+        }
+    }
+
+    double dead_bytes = totalSentFromHosts - totalSentToHosts;
+    double total_bytes = 0;
+    for (auto f = flows_to_schedule.begin(); f != flows_to_schedule.end(); f++) {
+        total_bytes += (*f)->size;
+    }
+
+    double simulation_time = current_time - start_time;
+    double utilization = (totalSentFromHosts * 8.0 / 144.0) / simulation_time;
+    double dst_utilization = (totalSentToHosts * 8.0 / 144.0) / simulation_time;
+
+    std::cout
+        << "DeadPackets " << 100.0 * (dead_bytes/total_bytes)
+        << "% DuplicatedPackets " << 100.0 * duplicated_packets_received * 1460.0 / total_bytes
+        << "% Utilization " << utilization / 10000000000 * 100 << "% " << dst_utilization / 10000000000 * 100  
+        << "%\n";
+}
+
 void run_experiment(int argc, char **argv, uint32_t exp_type) {
     if (argc < 3) {
         std::cout << "Usage: <exe> exp_type conf_file" << std::endl;

@@ -32,7 +32,7 @@ Queue::Queue(uint32_t id, double rate, uint32_t limit_bytes, int location) {
 
   this->dropss = 0; this->dropsl = 0; this->dropll = 0;
   this->pkt_drop = 0;
-  this->spary_counter=std::rand();
+  this->spray_counter=std::rand();
   this->packet_transmitting = NULL;
 }
 
@@ -49,7 +49,6 @@ void Queue::enque(Packet *packet) {
     bytes_in_queue += packet->size;
   } else {
     pkt_drop++;
-    //std::cout << "queue.cpp:50\n";
     drop(packet);
   }
 }
@@ -67,7 +66,6 @@ Packet *Queue::deque() {
 }
 
 void Queue::drop(Packet *packet) {
-
   packet->flow->pkt_drop++;
   if(packet->seq_no < packet->flow->size){
     packet->flow->data_pkt_drop++;
@@ -79,8 +77,6 @@ void Queue::drop(Packet *packet) {
     std::cout << get_current_time() << " pkt drop. flow:" << packet->flow->id
         << " type:" << packet->type << " seq:" << packet->seq_no
         << " at queue id:" << this->id << " loc:" << this->location << "\n";
-
-
 
   delete packet;
 }
@@ -99,16 +95,10 @@ void Queue::preempt_current_transmission(){
       for (delete_index = 0; delete_index < packets.size(); delete_index++) {
         if (packets[delete_index] == this->packet_transmitting) {
           found = true;
-          //std::cout << get_current_time() << " queue.cpp:95 q:" << this->unique_id << " qptr:" << this << " deleting pkt:" << this->packet_transmitting << "\n" << std::flush;
           break;
         }
       }
       if(found){
-        //std::cout << get_current_time() << " queue.cpp:100 q:" << this->unique_id << " qptr:" << this << " pkts in q:"<< std::flush;
-        //for(uint i = 0; i < packets.size(); i++){
-        //  std::cout << packets[i] << " ";
-        //}
-        //std::cout << "\n";
         bytes_in_queue -= packet_transmitting->size;
         packets.erase(packets.begin() + delete_index);
       }
@@ -117,9 +107,6 @@ void Queue::preempt_current_transmission(){
         busy_events[i]->cancelled = true;
       }
       busy_events.clear();
-      //if(this->unique_id == 354)
-      //  std::cout << get_current_time() << " queue.cpp:113 q:" << this->unique_id << " qptr:" << this << " preempt pkt:" << this->packet_transmitting << "\n" << std::flush;
-      //std::cout << "queue.cpp:95\n";
       //drop(packet_transmitting);//TODO: should be put back to queue
       enque(packet_transmitting);
       packet_transmitting = NULL;
@@ -151,41 +138,21 @@ void PFabricQueue::enque(Packet *packet) {
     bytes_in_queue -= packets[worst_index]->size;
     Packet *worst_packet = packets[worst_index];
 
-
-    bool isLL = false;
-    if (worst_packet->size < 5000) { //small flow
-      this->dropss += 1;
-    }
-    else {
-      for (uint32_t i = 0; i < packets.size(); i++) {
-        if (packets[i]->size > 5000) {
-          this->dropll += 1;
-          isLL = true;
-          break;
-        }
-      }
-      if (!isLL) this->dropsl += 1;
-    }
-
     packets.erase(packets.begin() + worst_index);
     pkt_drop++;
-    //std::cout << "queue.cpp:139\n";
     drop(worst_packet);
   }
 }
 
 
-Packet * PFabricQueue::deque() {
+Packet* PFabricQueue::deque() {
   if (bytes_in_queue > 0) {
 
     uint32_t best_priority = UINT_MAX;
-    //std::cout << "Max:  " << best_priority << std::endl;
     Packet *best_packet = NULL;
     uint32_t best_index = 0;
     for (uint32_t i = 0; i < packets.size(); i++) {
       Packet* curr_pkt = packets[i];
-      //std::cout << get_current_time() <<  " queue.cpp:167 iterate " << i << " pkt ptr:" << curr_pkt << " id:" << std::flush;
-      //std::cout << curr_pkt->unique_id << " qid:" << this->unique_id << "\n" << std::flush;
       if (curr_pkt->pf_priority < best_priority) {
         best_priority = curr_pkt->pf_priority;
         best_packet = curr_pkt;
@@ -195,7 +162,6 @@ Packet * PFabricQueue::deque() {
 
     for (uint32_t i = 0; i < packets.size(); i++) {
       Packet* curr_pkt = packets[i];
-      //std::cout << get_current_time() <<  " queue.cpp:177 iterate " << i << " pkt ptr:" << curr_pkt << " id:" << curr_pkt->unique_id << " qid:" << this->unique_id << "\n" << std::flush;
       if (curr_pkt->flow->id == best_packet->flow->id) {
         best_index = i;
         break;
@@ -208,7 +174,6 @@ Packet * PFabricQueue::deque() {
     p_departures += 1;
     b_departures += p->size;
 
-    //std::cout << get_current_time() <<  " queue.cpp:200 deque pkt ptr:" << p << " id:" << p->unique_id << "qid:" << this->unique_id << "\n" << std::flush;
     p->total_queuing_delay += get_current_time() - p->last_enque_time;
     if(p->type ==  NORMAL_PACKET){
         if(p->flow->first_byte_send_time < 0)
