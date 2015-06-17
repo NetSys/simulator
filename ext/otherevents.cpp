@@ -1,5 +1,11 @@
 #include "otherevents.h"
 
+#include "schedulinghost.h"
+#include "capabilityhost.h"
+#include "capabilityflow.h"
+#include "magichost.h"
+#include "magicflow.h"
+
 HostProcessingEvent::HostProcessingEvent(double time, SchedulingHost *h) : Event(HOST_PROCESSING, time) {
     this->host = h;
 }
@@ -60,7 +66,7 @@ void SenderNotifyEvent::process_event() {
     this->host->notify_flow_status();
 }
 
-
+/*
 ArbiterProcessingEvent::ArbiterProcessingEvent(double time, FastpassArbiter* a) : Event(ARBITER_PROCESSING, time) {
     this->arbiter = a;
 }
@@ -97,4 +103,4 @@ FastpassTimeoutEvent::~FastpassTimeoutEvent() {
 void FastpassTimeoutEvent::process_event() {
     this->flow->fastpass_timeout();
 }
-
+*/

@@ -1,9 +1,9 @@
 #ifndef FACTORY_H
 #define FACTORY_H
 
-#include "../core/flow.h"
-#include "../core/node.h"
-#include "../core/queue.h"
+#include "../coresim/flow.h"
+#include "../coresim/node.h"
+#include "../coresim/queue.h"
 
 /* Queue types */
 #define DROPTAIL_QUEUE 1

@@ -1,3 +1,5 @@
+#include <limits.h>
+#include "../coresim/params.h"
 #include "pfabricqueue.h"
 
 extern double get_current_time();

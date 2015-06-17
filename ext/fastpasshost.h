@@ -4,9 +4,9 @@
 #include <map>
 #include <set>
 
-#include "../core/node.h"
-#include "../core/packet.h"
-#include "../core/params.h"
+#include "../coresim/node.h"
+#include "../coresim/packet.h"
+#include "../coresim/params.h"
 
 class ArbiterProcessingEvent;
 class FastpassFlow;

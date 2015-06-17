@@ -9,7 +9,7 @@
 #define FLOW_GEN_H
 
 #include <iostream>
-#include <algortihm>
+#include <algorithm>
 #include <fstream>
 #include <stdlib.h>
 #include <stdint.h>
@@ -19,13 +19,13 @@
 #include "math.h"
 #include "assert.h"
 
-#include "params.h"
-#include "flow.h"
-#include "event.h"
-#include "node.h"
-#include "topology.h"
-#include "queue.h"
-#include "random_variable.h"
+#include "../coresim/params.h"
+#include "../coresim/flow.h"
+#include "../coresim/event.h"
+#include "../coresim/node.h"
+#include "../coresim/topology.h"
+#include "../coresim/queue.h"
+#include "../coresim/random_variable.h"
 
 #include "../ext/factory.h"
 

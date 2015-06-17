@@ -5,8 +5,8 @@
 #include <queue>
 #include <map>
 
-#include "../core/node.h"
-#include "../core/packet.h"
+#include "../coresim/node.h"
+#include "../coresim/packet.h"
 
 #include "schedulinghost.h"
 

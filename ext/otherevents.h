@@ -1,7 +1,7 @@
 #ifndef OTHER_EVENTS_H
 #define OTHER_EVENTS_H
 
-#include "../core/event.h"
+#include "../coresim/event.h"
 
 #define HOST_PROCESSING 10
 #define CAPABILITY_PROCESSING 11

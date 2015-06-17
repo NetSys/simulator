@@ -1,9 +1,11 @@
-#include "../core/event.h"
-#include "../core/packet.h"
-#include "../core/params.h"
+#include "../coresim/event.h"
+#include "../coresim/packet.h"
+#include "../coresim/params.h"
 
 #include "magicflow.h"
 #include "magichost.h"
+
+#include "otherevents.h"
 
 extern DCExpParams params;
 extern double get_current_time();

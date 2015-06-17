@@ -4,7 +4,7 @@
 #include <unordered_map>
 #include <set>
 
-#include "../core/flow.h"
+#include "../coresim/flow.h"
 
 class FastpassEpochSchedule;
 

@@ -1,10 +1,12 @@
-#include "../core/event.h"
-#include "../core/packet.h"
-#include "../core/debug.h"
-#include "../core/params.h"
-
 #include "fountainflow.h"
+
+#include "../coresim/event.h"
+#include "../coresim/packet.h"
+#include "../coresim/debug.h"
+#include "../coresim/params.h"
+
 #include "schedulinghost.h"
+#include "otherevents.h"
 
 extern double get_current_time();
 extern void add_to_event_queue(Event*);
@@ -18,7 +20,7 @@ void FountainFlow::send_pending_data() {
     if (this->finished) {
         return;
     }
-    Packet* p = send(next_seq_no);
+    Packet *p = send(next_seq_no);
     next_seq_no += mss;
     //need to schedule next one
     double td = src->queue->get_transmission_delay(p->size);
@@ -28,14 +30,14 @@ void FountainFlow::send_pending_data() {
 
 Packet* FountainFlow::send(uint32_t seq) {
     uint32_t priority = 1;
-    Packet* p = new Packet(get_current_time(), this, seq, priority, mss + hdr_size, src, dst);
+    Packet *p = new Packet(get_current_time(), this, seq, priority, mss + hdr_size, src, dst);
     total_pkt_sent++;
     add_to_event_queue(new PacketQueuingEvent(get_current_time(), p, src->queue));
     return p;
 }
 
 void FountainFlow::send_ack() {
-    Packet* ack = new PlainAck(this, 0, hdr_size, dst, src);
+    Packet *ack = new PlainAck(this, 0, hdr_size, dst, src);
     add_to_event_queue(new PacketQueuingEvent(get_current_time(), ack, dst->queue));
 }
 

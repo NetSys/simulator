@@ -1,10 +1,10 @@
 #include "fastpasshost.h"
 #include "fastpassflow.h"
 
-#include "../core/packet.h"
-#include "../core/topology.h"
-#include "../core/event.h"
-#include "../core/debug.h"
+#include "../coresim/packet.h"
+#include "../coresim/topology.h"
+#include "../coresim/event.h"
+#include "../coresim/debug.h"
 
 extern Topology *topology;
 extern double get_current_time();

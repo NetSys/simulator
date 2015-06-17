@@ -1,11 +1,11 @@
 #ifndef CAPABILITY_FLOW_H
 #define CAPABILITY_FLOW_H
 
-#include "fountainflow.h"
-#include "custompriorityqueue.h"
 #include <map>
 #include <set>
 
+#include "fountainflow.h"
+#include "custompriorityqueue.h"
 
 struct Capability //for extendability
 {

@@ -8,37 +8,35 @@
 #include <ctime>
 #include <map>
 #include <iomanip>
-
-#include "flow.h"
-#include "turboflow.h"
-
-#include "packet.h"
-#include "node.h"
-#include "event.h"
-#include "topology.h"
-#include "simpletopology.h"
-#include "params.h"
 #include "assert.h"
-#include "queue.h"
-
-#include "factory.h"
-#include "random_variable.h"
-#include "flow_generator.h"
-#include "fountainflow.h"
-#include "stats.h"
-#include "capabilityflow.h"
 #include "math.h"
+
+#include "../coresim/flow.h"
+#include "../coresim/packet.h"
+#include "../coresim/node.h"
+#include "../coresim/event.h"
+#include "../coresim/topology.h"
+#include "../coresim/params.h"
+#include "../coresim/queue.h"
+#include "../coresim/random_variable.h"
+
+#include "../ext/factory.h"
+#include "../ext/fountainflow.h"
+#include "../ext/capabilityflow.h"
+
+#include "flow_generator.h"
+#include "stats.h"
 
 extern Topology *topology;
 extern double current_time;
-extern std::priority_queue<Event *, std::vector<Event *>, EventComparator> event_queue;
-extern std::deque<Flow *> flows_to_schedule;
-extern std::deque<Event *> flow_arrivals;
+extern std::priority_queue<Event*, std::vector<Event*>, EventComparator> event_queue;
+extern std::deque<Flow*> flows_to_schedule;
+extern std::deque<Event*> flow_arrivals;
 
 extern uint32_t num_outstanding_packets;
 extern uint32_t max_outstanding_packets;
 extern DCExpParams params;
-extern void add_to_event_queue(Event *);
+extern void add_to_event_queue(Event*);
 extern void read_experiment_parameters(std::string conf_filename, uint32_t exp_type);
 extern void read_flows_to_schedule(std::string filename, uint32_t num_lines, Topology *topo);
 extern uint32_t duplicated_packets_received;
@@ -193,7 +191,7 @@ void generate_flows_to_schedule_fd_with_skew(std::string filename, uint32_t num_
     else
         nv_intarr = new ExponentialRandomVariable(1.0 / lambda_per_flow);
 
-    //* [expr ($link_rate*$load*1000000000)/($meanFlowSize*8.0/1460*1500)]
+    // [expr ($link_rate*$load*1000000000)/($meanFlowSize*8.0/1460*1500)]
     for (uint32_t i = 0; i < sources.size(); i++) {
         for (uint32_t j = 0; j < destinations.size(); j++) {
             if (sources[i] != destinations[j]) {
@@ -295,7 +293,6 @@ void printQueueStatistics(Topology *topo) {
     std::cout << " Overall:" << std::setprecision(2) <<(double)total_drop*1460/totalSentFromHosts << "\n";
 
     double totalSentToHosts = 0;
-    int drop_ss = 0, drop_sl = 0, drop_ll = 0;
     for (auto tor = (topo->switches).begin(); tor != (topo->switches).end(); tor++) {
         for (auto q = ((*tor)->queues).begin(); q != ((*tor)->queues).end(); q++) {
             if ((*q)->rate == params.bandwidth) totalSentToHosts += (*q)->b_departures;
@@ -523,8 +520,8 @@ void run_experiment(int argc, char **argv, uint32_t exp_type) {
         << " [100k,10m]avg: " << slowdown_100k_10m.avg() 
         << " [100k,10m]99p: " << slowdown_100k_10m.get_percentile(0.99)
         << " [10m,inf]avg: " << slowdown_10m_inf.avg() 
-        << " [10m,inf]99p: " << slowdown_10m_inf.get_percentile(0.99);
-    << "\n";
+        << " [10m,inf]99p: " << slowdown_10m_inf.get_percentile(0.99)
+        << "\n";
 
     printQueueStatistics(topology);
 

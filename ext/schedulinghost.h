@@ -3,8 +3,9 @@
 
 #include <set>
 #include <queue>
-#include "../core/node.h"
-#include "../core/packet.h"
+
+#include "../coresim/node.h"
+#include "../coresim/packet.h"
 
 class Flow;
 class HostProcessingEvent;
@@ -12,11 +13,6 @@ class HostProcessingEvent;
 class HostFlowComparator {
     public:
         bool operator() (Flow* a, Flow* b);
-};
-
-class RTSComparator {
-    public:
-        bool operator() (RTSCTS* a, RTSCTS* b);
 };
 
 class SchedulingHost : public Host {

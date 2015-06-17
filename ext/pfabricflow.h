@@ -1,8 +1,8 @@
 #ifndef PFABRIC_FLOW_H
 #define PFABRIC_FLOW_H
 
-#include "../core/flow.h"
-#include "../core/node.h"
+#include "../coresim/flow.h"
+#include "../coresim/node.h"
 
 class PFabricFlow : public Flow {
     public:

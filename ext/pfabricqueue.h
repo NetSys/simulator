@@ -1,7 +1,8 @@
 #ifndef PFABRIC_QUEUE_H
 #define PFABRIC_QUEUE_H
 
-#include "../core/queue.h"
+#include "../coresim/queue.h"
+#include "../coresim/packet.h"
 
 #define PFABRIC_QUEUE 2
 
@@ -11,6 +12,5 @@ class PFabricQueue : public Queue {
         void enque(Packet *packet);
         Packet *deque();
 };
-
 
 #endif

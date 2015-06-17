@@ -1,8 +1,8 @@
 #ifndef MAGIC_FLOW_H
 #define MAGIC_FLOW_H
 
-#include "fountainflow.h"
 #include <assert.h>
+#include "fountainflow.h"
 
 class MagicFlow : public FountainFlowWithSchedulingHost {
     public:

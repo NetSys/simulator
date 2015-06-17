@@ -1,10 +1,13 @@
-#include "event.h"
-#include "packet.h"
-#include "debug.h"
-#include "params.h"
+#include "math.h"
+
+#include "../coresim/event.h"
+#include "../coresim/packet.h"
+#include "../coresim/debug.h"
+#include "../coresim/params.h"
+
 #include "capabilityhost.h"
 #include "capabilityflow.h"
-#include "math.h"
+#include "otherevents.h"
 
 extern double get_current_time();
 extern void add_to_event_queue(Event*);
@@ -20,8 +23,7 @@ bool CapabilityComparator::operator() (Capability* a, Capability* b)
 
 
 CapabilityFlow::CapabilityFlow(uint32_t id, double start_time, uint32_t size, Host *s, Host *d)
-    :FountainFlow(id, start_time, size, s, d)
-{
+    : FountainFlow(id, start_time, size, s, d) {
     this->finished_at_receiver = false;
     this->capability_count = 0;
     this->redundancy_ctrl_timeout = -1;
@@ -37,7 +39,6 @@ CapabilityFlow::CapabilityFlow(uint32_t id, double start_time, uint32_t size, Ho
     this->notified_num_flow_at_sender = 1;
     this->last_capa_data_seq_num_sent = -1;
     this->received_until = 0;
-
 }
 
 

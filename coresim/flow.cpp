@@ -1,7 +1,8 @@
 #include <math.h>
 #include <iostream>
-#include "params.h"
+#include <assert.h>
 
+#include "params.h"
 #include "flow.h"
 #include "packet.h"
 #include "event.h"

@@ -3,7 +3,7 @@
 
 AC_INIT([simulator], [1.1], [akshay.narayan@berkeley.edu])
 AC_PREREQ([2.69])
-AC_CONFIG_SRCDIR([core/main.cpp])
+AC_CONFIG_SRCDIR([coresim/main.cpp])
 
 AM_INIT_AUTOMAKE([subdir-objects])
 AC_CONFIG_FILES([Makefile])

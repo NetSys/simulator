@@ -1,13 +1,13 @@
 #include <assert.h>
 
-#include "../core/flow.h"
-#include "../core/packet.h"
-#include "../core/params.h"
-#include "../core/factory.h"
-#include "../core/event.h"
+#include "../coresim/flow.h"
+#include "../coresim/packet.h"
+#include "../coresim/params.h"
+#include "../coresim/event.h"
 
+#include "factory.h"
 #include "schedulinghost.h"
-#include "otherevent.h"
+#include "otherevents.h"
 
 extern double get_current_time();
 extern void add_to_event_queue(Event*);

@@ -1,8 +1,8 @@
 #ifndef FOUNTAIN_FLOW_H
 #define FOUNTAIN_FLOW_H
 
-#include "../core/flow.h"
 #include <assert.h>
+#include "../coresim/flow.h"
 
 class FountainFlow : public Flow {
 public:
