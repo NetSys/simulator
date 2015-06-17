@@ -6,23 +6,15 @@
 //
 //
 
+#include <iomanip>
+
 #include "event.h"
 #include "packet.h"
 #include "topology.h"
 #include "params.h"
-#include "factory.h"
-#include <iomanip>
 #include "debug.h"
 
-
-#include "capabilityflow.h"
-#include "capabilityhost.h"
-
-#include "magicflow.h"
-#include "magichost.h"
-
-#include "fastpasshost.h"
-#include "fastpassflow.h"
+#include "../ext/factory.h"
 
 extern Topology* topology;
 extern std::priority_queue<Event*, std::vector<Event*>, EventComparator> event_queue;
@@ -319,13 +311,10 @@ void FlowFinishedEvent::process_event() {
             << topology->get_oracle_fct(flow) << " "
             << 1000000 * flow->flow_completion_time / topology->get_oracle_fct(flow) << " "
             << flow->total_pkt_sent << "/" << (flow->size/flow->mss) << "//" << flow->received_count << " "
-            << flow->data_pkt_drop << "/" << flow->ack_pkt_drop << "/" << flow->pkt_drop << " ";
-        if(params.flow_type == CAPABILITY_FLOW) {
-            std::cout << ((CapabilityFlow*)flow)->capability_count << " ";
-        }
-        std::cout << 1000000 * (flow->first_byte_send_time - flow->start_time) << " ";
-        std::cout << std::endl;
-        std::cout << std::setprecision(9) << std::fixed ;
+            << flow->data_pkt_drop << "/" << flow->ack_pkt_drop << "/" << flow->pkt_drop << " "
+            << 1000000 * (flow->first_byte_send_time - flow->start_time) << " "
+            << std::endl;
+        std::cout << std::setprecision(9) << std::fixed;
     }
 }
 

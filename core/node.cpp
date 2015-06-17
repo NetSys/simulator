@@ -1,7 +1,8 @@
 #include "packet.h"
 #include "params.h"
-#include "factory.h"
 #include "flow.h"
+
+#include "../ext/factory.h"
 
 extern DCExpParams params;
 

@@ -5,20 +5,19 @@
 #include <deque>
 #include <stdint.h>
 #include <time.h>
+#include "assert.h"
 
 #include "flow.h"
-#include "turboflow.h"
 #include "packet.h"
 #include "node.h"
 #include "event.h"
 #include "topology.h"
-#include "simpletopology.h"
 #include "params.h"
-#include "assert.h"
 #include "queue.h"
-#include "factory.h"
 #include "random_variable.h"
-#include "fastpasshost.h"
+
+#include "../ext/factory.h"
+//#include "../ext/fastpasshost.h"
 
 using namespace std;
 
@@ -67,8 +66,8 @@ double get_current_time() {
 
 /* Runs a initialized scenario */
 void run_scenario() {
-    if(params.flow_type == FASTPASS_FLOW)
-        ((PFabricTopology*)topology)->arbiter->start_arbiter();
+//    if(params.flow_type == FASTPASS_FLOW)
+//        ((PFabricTopology*)topology)->arbiter->start_arbiter();
     // Flow Arrivals create new flow arrivals
     // Add the first flow arrival
     if (flow_arrivals.size() > 0) {
@@ -118,7 +117,7 @@ int main (int argc, char ** argv) {
     uint32_t exp_type = atoi(argv[1]);
     switch (exp_type) {
         case DEFAULT_EXP:
-            run_experiment(argv, argv, exp_type);
+            run_experiment(argc, argv, exp_type);
         default:
             assert(false);
     }

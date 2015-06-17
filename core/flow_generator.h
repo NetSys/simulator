@@ -26,7 +26,8 @@
 #include "topology.h"
 #include "queue.h"
 #include "random_variable.h"
-#include "factory.h"
+
+#include "../ext/factory.h"
 
 extern Topology *topology;
 extern double current_time;

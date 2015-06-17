@@ -30,7 +30,6 @@ Queue::Queue(uint32_t id, double rate, uint32_t limit_bytes, int location) {
     this->p_arrivals = 0; this->p_departures = 0;
     this->b_arrivals = 0; this->b_departures = 0;
 
-    this->dropss = 0; this->dropsl = 0; this->dropll = 0;
     this->pkt_drop = 0;
     this->spray_counter=std::rand();
     this->packet_transmitting = NULL;

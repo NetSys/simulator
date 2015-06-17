@@ -1,19 +1,20 @@
 #ifndef TOPOLOGY_H
 #define TOPOLOGY_H
 
-
-#include "node.h"
-#include "assert.h"
-#include "params.h"
-#include "factory.h"
-#include "packet.h"
-#include "queue.h"
 #include <cstddef>
 #include <iostream>
 #include <math.h>
 #include <vector>
 
-class FastpassArbiter;
+#include "node.h"
+#include "assert.h"
+#include "params.h"
+#include "packet.h"
+#include "queue.h"
+
+#include "../ext/factory.h"
+
+//class FastpassArbiter;
 
 class Topology {
 public:
@@ -26,7 +27,7 @@ public:
   std::vector<Host *> hosts;
   std::vector<Switch*> switches;
 
-  FastpassArbiter* arbiter;
+//  FastpassArbiter* arbiter;
 };
 
 class PFabricTopology : public Topology {

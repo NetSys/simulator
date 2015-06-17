@@ -62,7 +62,7 @@ class ProbDropQueue : public Queue {
                 uint32_t limit_bytes,
                 double drop_prob, 
                 int location
-            );
+                );
         virtual void enque(Packet *packet);
 
         double drop_prob;
