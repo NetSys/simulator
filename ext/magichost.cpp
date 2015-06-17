@@ -2,14 +2,12 @@
 
 #include "magichost.h"
 #include "magicflow.h"
-#include "event.h"
-#include "flow.h"
-#include "packet.h"
-#include "fountainflow.h"
-#include "debug.h"
-#include "assert.h"
-#include "params.h"
 #include "factory.h"
+
+#include "../core/event.h"
+#include "../core/flow.h"
+#include "../core/debug.h"
+#include "../core/params.h"
 
 extern double get_current_time();
 extern void add_to_event_queue(Event*);
@@ -45,9 +43,9 @@ bool MagicFlowTimeoutComparator::operator() (MagicFlow* a, MagicFlow* b) {
 
 
 MagicHost::MagicHost(uint32_t id, double rate, uint32_t queue_type) : SchedulingHost(id, rate, queue_type) {
-  this->flow_sending = NULL;
-  this->recv_busy_until = 0;
-  this->host_type = MAGIC_HOST;
+    this->flow_sending = NULL;
+    this->recv_busy_until = 0;
+    this->host_type = MAGIC_HOST;
 }
 
 void MagicHost::start(Flow* f) {
@@ -91,7 +89,7 @@ void MagicHost::schedule() {
             }
             else if(((MagicHost*)(f->dst))->recv_busy_until <= get_current_time() + f->get_propa_time() * params.magic_trans_slack
                     || f->size_in_pkt < ((MagicHost*)(f->dst))->flow_receiving->size_in_pkt
-            ){
+                   ){
                 //schedule the current flow
                 f->virtual_rts_send_count++;
                 f->schedule_time = get_current_time();

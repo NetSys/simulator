@@ -12,8 +12,8 @@
 
 /* Flow types */
 #define NORMAL_FLOW 1
-#define PFABRIC_FLOW 2
 
+#define PFABRIC_FLOW 2
 #define CAPABILITY_FLOW 112
 #define MAGIC_FLOW 113
 #define FASTPASS_FLOW 114

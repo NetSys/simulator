@@ -1,14 +1,14 @@
 #ifndef FASTPASS_FLOW_H
 #define FASTPASS_FLOW_H
 
-#include "flow.h"
 #include <unordered_map>
 #include <set>
 
+#include "../core/flow.h"
+
 class FastpassEpochSchedule;
 
-class FastpassFlow : public Flow
-{
+class FastpassFlow : public Flow {
 public:
     FastpassFlow(uint32_t id, double start_time, uint32_t size, Host *s, Host *d);
     void start_flow();
@@ -31,11 +31,6 @@ public:
     int arbiter_remaining_num_pkts;
     bool arbiter_received_rts;
     bool arbiter_finished;
-
-
-
 };
-
-
 
 #endif

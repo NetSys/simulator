@@ -1,9 +1,10 @@
 #include "fastpasshost.h"
 #include "fastpassflow.h"
-#include "packet.h"
-#include "topology.h"
-#include "event.h"
-#include "debug.h"
+
+#include "../core/packet.h"
+#include "../core/topology.h"
+#include "../core/event.h"
+#include "../core/debug.h"
 
 extern Topology *topology;
 extern double get_current_time();
@@ -11,9 +12,13 @@ extern void add_to_event_queue(Event*);
 extern DCExpParams params;
 extern uint32_t num_outstanding_packets;
 
-FastpassFlow::FastpassFlow(uint32_t id, double start_time, uint32_t size,
-        Host *s, Host *d) :
-        Flow(id, start_time, size, s, d) {
+FastpassFlow::FastpassFlow(
+        uint32_t id, 
+        double start_time, 
+        uint32_t size,
+        Host *s, 
+        Host *d
+        ) : Flow(id, start_time, size, s, d) {
     this->sender_remaining_num_pkts = this->size_in_pkt;
     this->arbiter_received_rts = false;
     this->arbiter_finished = false;
@@ -127,3 +132,4 @@ void FastpassFlow::receive(Packet *p) {
 void FastpassFlow::schedule_send_pkt(double time) {
     add_to_event_queue(new FastpassFlowProcessingEvent(time, this));
 }
+

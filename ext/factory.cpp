@@ -1,5 +1,8 @@
 #include "factory.h"
 
+#include "pfabricqueue.h"
+#include "pfabricflow.h"
+
 #include "schedulinghost.h"
 
 #include "capabilityhost.h"

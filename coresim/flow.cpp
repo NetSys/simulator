@@ -1,10 +1,10 @@
+#include <math.h>
+#include <iostream>
+#include "params.h"
+
 #include "flow.h"
 #include "packet.h"
 #include "event.h"
-#include "params.h"
-#include <iostream>
-#include "assert.h"
-#include <math.h>
 
 extern double get_current_time(); // TODOm
 extern void add_to_event_queue(Event *);
