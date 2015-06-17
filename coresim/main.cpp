@@ -118,6 +118,7 @@ int main (int argc, char ** argv) {
     switch (exp_type) {
         case DEFAULT_EXP:
             run_experiment(argc, argv, exp_type);
+            break;
         default:
             assert(false);
     }

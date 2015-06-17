@@ -355,7 +355,7 @@ void run_experiment(int argc, char **argv, uint32_t exp_type) {
             //generate_flows_to_schedule_fd_ddc(params.cdf_or_flow_trace, num_flows, topology);
         }
         else if (params.traffic_imbalance < 0.01) {
-            fg = new FlowGenerator(num_flows, topology, params.cdf_or_flow_trace);
+            fg = new PoissonFlowGenerator(num_flows, topology, params.cdf_or_flow_trace);
             fg->make_flows();
         }
         else {
