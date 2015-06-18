@@ -5,7 +5,6 @@
 #include "../coresim/debug.h"
 
 #include "schedulinghost.h"
-#include "otherevents.h"
 
 #include "../run/params.h"
 

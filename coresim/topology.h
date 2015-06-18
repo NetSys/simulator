@@ -15,64 +15,60 @@
 
 #include "../run/params.h"
 
-//class FastpassArbiter;
-
 class Topology {
-public:
-  Topology();
-  virtual Queue *get_next_hop(Packet *p, Queue *q) = 0;
-  virtual double get_oracle_fct(Flow* f) = 0;
+    public:
+        Topology();
+        virtual Queue *get_next_hop(Packet *p, Queue *q) = 0;
+        virtual double get_oracle_fct(Flow* f) = 0;
 
-  uint32_t num_hosts;
+        uint32_t num_hosts;
 
-  std::vector<Host *> hosts;
-  std::vector<Switch*> switches;
-
-//  FastpassArbiter* arbiter;
+        std::vector<Host *> hosts;
+        std::vector<Switch*> switches;
 };
 
 class PFabricTopology : public Topology {
-public:
-  PFabricTopology(
-    uint32_t num_hosts, 
-    uint32_t num_agg_switches,
-    uint32_t num_core_switches, 
-    double bandwidth, 
-    uint32_t queue_type
-  );
+    public:
+        PFabricTopology(
+                uint32_t num_hosts, 
+                uint32_t num_agg_switches,
+                uint32_t num_core_switches, 
+                double bandwidth, 
+                uint32_t queue_type
+                );
 
-  virtual Queue* get_next_hop(Packet *p, Queue *q);
-  virtual double get_oracle_fct(Flow* f);
+        virtual Queue* get_next_hop(Packet *p, Queue *q);
+        virtual double get_oracle_fct(Flow* f);
 
-  uint32_t num_agg_switches;
-  uint32_t num_core_switches;
+        uint32_t num_agg_switches;
+        uint32_t num_core_switches;
 
-  std::vector<AggSwitch *> agg_switches;
-  std::vector<CoreSwitch *> core_switches;
+        std::vector<AggSwitch*> agg_switches;
+        std::vector<CoreSwitch*> core_switches;
 };
 
 
 class BigSwitchTopology : public Topology {
-public:
-  BigSwitchTopology(uint32_t num_hosts, double bandwidth, uint32_t queue_type);
-  virtual Queue *get_next_hop(Packet *p, Queue *q);
-  virtual double get_oracle_fct(Flow* f);
+    public:
+        BigSwitchTopology(uint32_t num_hosts, double bandwidth, uint32_t queue_type);
+        virtual Queue *get_next_hop(Packet *p, Queue *q);
+        virtual double get_oracle_fct(Flow* f);
 
-  CoreSwitch* the_switch;
+        CoreSwitch* the_switch;
 
 };
 
 class CutThroughTopology : public PFabricTopology {
-public:
-  CutThroughTopology(
-    uint32_t num_hosts, 
-    uint32_t num_agg_switches,
-    uint32_t num_core_switches, 
-    double bandwidth, 
-    uint32_t queue_type
-  );
+    public:
+        CutThroughTopology(
+                uint32_t num_hosts, 
+                uint32_t num_agg_switches,
+                uint32_t num_core_switches, 
+                double bandwidth, 
+                uint32_t queue_type
+                );
 
-  virtual double get_oracle_fct(Flow* f);
+        virtual double get_oracle_fct(Flow* f);
 };
 
 #endif

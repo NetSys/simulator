@@ -6,7 +6,6 @@
 
 #include "capabilityhost.h"
 #include "capabilityflow.h"
-#include "otherevents.h"
 
 #include "../run/params.h"
 
@@ -19,8 +18,6 @@ bool CapabilityComparator::operator() (Capability* a, Capability* b)
 {
     return a->timeout > b->timeout;
 }
-
-
 
 
 CapabilityFlow::CapabilityFlow(uint32_t id, double start_time, uint32_t size, Host *s, Host *d)

@@ -20,18 +20,17 @@ simulator_SOURCES = 				 		 	 \
 					ext/factory.cpp 		 	 \
 					ext/pfabricqueue.cpp         \
 					ext/pfabricflow.cpp          \
-					ext/otherevents.cpp          \
 					ext/schedulinghost.cpp	     \
 					ext/fountainflow.cpp 	   	 \
 					ext/magichost.cpp 		   	 \
 					ext/magicflow.cpp 		   	 \
 					ext/capabilityflow.cpp 	   	 \
 					ext/capabilityhost.cpp 	   	 \
-					run/params.cpp 		 	 \
+					ext/fastpassflow.cpp 	   	 \
+					ext/fastpasshost.cpp 	   	 \
+					ext/fastpassTopology.cpp	 \
+					run/params.cpp 		 	 	 \
 					run/stats.cpp 			   	 \
 					run/flow_generator.cpp       \
 					run/experiment.cpp 
 
-# 
-####					ext/fastpassflow.cpp 	   	 \
-####					ext/fastpasshost.cpp 	   	 

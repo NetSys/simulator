@@ -6,6 +6,7 @@
 
 #include "../coresim/node.h"
 #include "../coresim/packet.h"
+#include "../coresim/event.h"
 
 class Flow;
 class HostProcessingEvent;
@@ -22,6 +23,15 @@ class SchedulingHost : public Host {
         virtual void send();
         std::priority_queue<Flow*, std::vector<Flow*>, HostFlowComparator> sending_flows;
         HostProcessingEvent* host_proc_event;
+};
+
+#define HOST_PROCESSING 10
+class HostProcessingEvent : public Event {
+    public:
+        HostProcessingEvent(double time, SchedulingHost *host);
+        ~HostProcessingEvent();
+        void process_event();
+        SchedulingHost *host;
 };
 
 #endif

@@ -33,4 +33,22 @@ public:
     bool arbiter_finished;
 };
 
+#define FASTPASS_FLOW_PROCESSING 15
+class FastpassFlowProcessingEvent : public Event {
+    public:
+        FastpassFlowProcessingEvent(double time, FastpassFlow *flow);
+        ~FastpassFlowProcessingEvent();
+        void process_event();
+        FastpassFlow* flow;
+};
+
+#define FASTPASS_TIMEOUT 16
+class FastpassTimeoutEvent : public Event {
+    public:
+        FastpassTimeoutEvent(double time, FastpassFlow *flow);
+        ~FastpassTimeoutEvent();
+        void process_event();
+        FastpassFlow* flow;
+};
+
 #endif

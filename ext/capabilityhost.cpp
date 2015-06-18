@@ -9,7 +9,6 @@
 #include "capabilityflow.h"
 #include "capabilityhost.h"
 #include "factory.h"
-#include "otherevents.h"
 
 #include "../run/params.h"
 
@@ -17,6 +16,34 @@ extern double get_current_time();
 extern void add_to_event_queue(Event*);
 extern DCExpParams params;
 
+CapabilityProcessingEvent::CapabilityProcessingEvent(double time, CapabilityHost *h, bool is_timeout)
+    : Event(CAPABILITY_PROCESSING, time) {
+        this->host = h;
+        this->is_timeout_evt = is_timeout;
+    }
+
+CapabilityProcessingEvent::~CapabilityProcessingEvent() {
+    if (host->capa_proc_evt == this) {
+        host->capa_proc_evt = NULL;
+    }
+}
+
+void CapabilityProcessingEvent::process_event() {
+    this->host->capa_proc_evt = NULL;
+    this->host->send_capability();
+}
+
+SenderNotifyEvent::SenderNotifyEvent(double time, CapabilityHost* h) : Event(SENDER_NOTIFY, time) {
+    this->host = h;
+}
+
+SenderNotifyEvent::~SenderNotifyEvent() {
+}
+
+void SenderNotifyEvent::process_event() {
+    this->host->sender_notify_evt = NULL;
+    this->host->notify_flow_status();
+}
 
 bool CapabilityFlowComparator::operator() (CapabilityFlow* a, CapabilityFlow* b){
     //return a->remaining_pkts_at_sender > b->remaining_pkts_at_sender;

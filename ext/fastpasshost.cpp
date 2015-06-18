@@ -1,13 +1,15 @@
-#include "fastpasshost.h"
+#include "assert.h"
 
-#include "../core/factory.h"
-#include "../core/params.h"
-#include "../core/assert.h"
-#include "../core/event.h"
-#include "../core/topology.h"
-#include "../core/debug.h"
+#include "../coresim/event.h"
+#include "../coresim/topology.h"
+#include "../coresim/debug.h"
 
+#include "factory.h"
 #include "fastpassflow.h"
+#include "fastpasshost.h"
+#include "fastpassTopology.h"
+
+#include "../run/params.h"
 
 extern uint32_t total_finished_flows;
 extern double get_current_time();
@@ -29,18 +31,26 @@ FastpassEpochSchedule::FastpassEpochSchedule(double s) {
 }
 
 FastpassFlow* FastpassEpochSchedule::get_sender() {
-    for(int i = 0; i < FASTPASS_EPOCH_PKTS; i++)
-    {
-        if(schedule[i]) return schedule[i];
+    for (int i = 0; i < FASTPASS_EPOCH_PKTS; i++) {
+        if (schedule[i]) return schedule[i];
     }
     return NULL;
 }
 
+FastpassAggSwitch::FastpassAggSwitch(
+        uint32_t id, 
+        uint32_t nq1, 
+        double r1, 
+        uint32_t nq2, 
+        double r2, 
+        uint32_t queue_type
+        ) : AggSwitch(id, nq1, r1, nq2, r2, queue_type) {
+    queue_to_arbiter = NULL;
+}
 
 FastpassHost::FastpassHost(uint32_t id, double rate, uint32_t queue_type) : Host(id, rate, queue_type, FASTPASS_HOST) {}
 
-void FastpassHost::receive_schedule_pkt(FastpassSchedulePkt* pkt)
-{
+void FastpassHost::receive_schedule_pkt(FastpassSchedulePkt* pkt) {
     assert(pkt->schedule->start_time >= get_current_time());
     for(int i = 0; i < FASTPASS_EPOCH_PKTS; i++)
     {
@@ -157,8 +167,8 @@ void FastpassArbiter::receive_rts(FastpassRTS* rts)
 {
     if(!((FastpassFlow*)rts->flow)->arbiter_received_rts)
     {
-        ((FastpassFlow*)rts->flow)->arbiter_received_rts = true;
-        ((PFabricTopology*)topology)->arbiter->sending_flows.push((FastpassFlow*)rts->flow);
+        ((FastpassFlow*) rts->flow)->arbiter_received_rts = true;
+        ((FastpassTopology*) topology)->arbiter->sending_flows.push((FastpassFlow*)rts->flow);
     }
 
     if(rts->remaining_num_pkts < 0){
@@ -167,5 +177,30 @@ void FastpassArbiter::receive_rts(FastpassRTS* rts)
     }
     else
         ((FastpassFlow*)rts->flow)->arbiter_remaining_num_pkts = rts->remaining_num_pkts;
+}
+
+
+FastpassFlowProcessingEvent::FastpassFlowProcessingEvent(double time, FastpassFlow* f)
+    : Event(FASTPASS_FLOW_PROCESSING, time) {
+    this->flow = f;
+}
+
+FastpassFlowProcessingEvent::~FastpassFlowProcessingEvent() {
+}
+
+void FastpassFlowProcessingEvent::process_event() {
+    this->flow->send_data_pkt();
+}
+
+
+FastpassTimeoutEvent::FastpassTimeoutEvent(double time, FastpassFlow* f) : Event(FASTPASS_TIMEOUT, time) {
+    this->flow = f;
+}
+
+FastpassTimeoutEvent::~FastpassTimeoutEvent() {
+}
+
+void FastpassTimeoutEvent::process_event() {
+    this->flow->fastpass_timeout();
 }
 

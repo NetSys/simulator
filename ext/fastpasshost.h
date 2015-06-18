@@ -6,6 +6,7 @@
 
 #include "../coresim/node.h"
 #include "../coresim/packet.h"
+#include "../coresim/event.h"
 
 #include "../run/params.h"
 
@@ -23,7 +24,12 @@ class FastpassEpochSchedule {
         FastpassFlow* get_sender();
         double start_time;
         std::map<int, FastpassFlow*> schedule;
+};
 
+class FastpassAggSwitch : public AggSwitch {
+    public:
+        FastpassAggSwitch(uint32_t id, uint32_t nq1, double r1, uint32_t nq2, double r2, uint32_t queue_type);
+        Queue* queue_to_arbiter;
 };
 
 class FastpassHost : public Host {
@@ -44,6 +50,15 @@ class FastpassArbiter : public Host {
         ArbiterProcessingEvent* arbiter_proc_evt;
         std::priority_queue<FastpassFlow*, std::vector<FastpassFlow*>, FastpassFlowComparator> sending_flows;
 
+};
+
+#define ARBITER_PROCESSING 14
+class ArbiterProcessingEvent : public Event {
+    public:
+        ArbiterProcessingEvent(double time, FastpassArbiter *host);
+        ~ArbiterProcessingEvent();
+        void process_event();
+        FastpassArbiter *arbiter;
 };
 
 #endif

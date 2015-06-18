@@ -7,13 +7,25 @@
 #include "magichost.h"
 #include "magicflow.h"
 #include "factory.h"
-#include "otherevents.h"
 
 #include "../run/params.h"
 
 extern double get_current_time();
 extern void add_to_event_queue(Event*);
 extern DCExpParams params;
+
+MagicHostScheduleEvent::MagicHostScheduleEvent(double time, MagicHost *h) : Event(MAGIC_HOST_SCHEDULE, time) {
+    this->host = h;
+}
+
+MagicHostScheduleEvent::~MagicHostScheduleEvent() {
+}
+
+void MagicHostScheduleEvent::process_event() {
+    //std::cout << "calling schd() at event.cpp 369 for host" << this->host->id << "\n";
+    this->host->schedule();
+    this->host->try_send();
+}
 
 bool has_higher_priority(MagicFlow* a, MagicFlow* b) {
     // use FIFO ordering since all flows are same size

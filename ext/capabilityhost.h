@@ -6,13 +6,14 @@
 
 #include "../coresim/node.h"
 #include "../coresim/packet.h"
+#include "../coresim/event.h"
 
 #include "schedulinghost.h"
 #include "custompriorityqueue.h"
 
+class CapabilityFlow;
 class CapabilityProcessingEvent;
 class SenderNotifyEvent;
-class CapabilityFlow;
 
 class CapabilityFlowComparator {
     public:
@@ -46,6 +47,25 @@ class CapabilityHost : public SchedulingHost {
         int hold_on;
         int total_capa_schd_evt_count;
         int could_better_schd_count;
+};
+
+#define CAPABILITY_PROCESSING 11
+class CapabilityProcessingEvent : public Event {
+    public:
+        CapabilityProcessingEvent(double time, CapabilityHost *host, bool is_timeout);
+        ~CapabilityProcessingEvent();
+        void process_event();
+        CapabilityHost *host;
+        bool is_timeout_evt;
+};
+
+#define SENDER_NOTIFY 13
+class SenderNotifyEvent : public Event {
+    public:
+        SenderNotifyEvent(double time, CapabilityHost *host);
+        ~SenderNotifyEvent();
+        void process_event();
+        CapabilityHost *host;
 };
 
 #endif

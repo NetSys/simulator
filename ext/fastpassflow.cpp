@@ -6,6 +6,8 @@
 #include "../coresim/event.h"
 #include "../coresim/debug.h"
 
+#include "fastpassTopology.h"
+
 extern Topology *topology;
 extern double get_current_time();
 extern void add_to_event_queue(Event*);
@@ -33,7 +35,7 @@ void FastpassFlow::start_flow() {
 }
 
 void FastpassFlow::update_remaining_size() {
-    FastpassRTS* rts = new FastpassRTS(this, this->src, ((PFabricTopology*) topology)->arbiter, this->sender_finished?-1:this->sender_remaining_num_pkts);
+    FastpassRTS* rts = new FastpassRTS(this, this->src, ((FastpassTopology*) topology)->arbiter, this->sender_finished?-1:this->sender_remaining_num_pkts);
     add_to_event_queue(new PacketQueuingEvent(get_current_time(), rts, src->queue));
 }
 
@@ -43,8 +45,8 @@ void FastpassFlow::send_ack_pkt(uint32_t seq) {
 }
 
 void FastpassFlow::send_schedule_pkt(FastpassEpochSchedule* schd) {
-    FastpassSchedulePkt* pkt = new FastpassSchedulePkt(this, ((PFabricTopology*) topology)->arbiter, this->src, schd);
-    add_to_event_queue(new PacketQueuingEvent(get_current_time(), pkt, ((PFabricTopology*) topology)->arbiter->queue));
+    FastpassSchedulePkt* pkt = new FastpassSchedulePkt(this, ((FastpassTopology*) topology)->arbiter, this->src, schd);
+    add_to_event_queue(new PacketQueuingEvent(get_current_time(), pkt, ((FastpassTopology*) topology)->arbiter->queue));
 }
 
 
@@ -87,7 +89,7 @@ void FastpassFlow::receive(Packet *p) {
     if (p->type == FASTPASS_RTS) {
         if(debug_flow(this->id))
             std::cout << get_current_time() << " flow " << this->id << " received rts\n";
-        ((PFabricTopology*) topology)->arbiter->receive_rts((FastpassRTS*) p);
+        ((FastpassTopology*) topology)->arbiter->receive_rts((FastpassRTS*) p);
     } else if (p->type == FASTPASS_SCHEDULE) {
         if(debug_flow(this->id))
             std::cout << get_current_time() << " flow " << this->id << " received schedule\n";
@@ -131,5 +133,18 @@ void FastpassFlow::receive(Packet *p) {
 
 void FastpassFlow::schedule_send_pkt(double time) {
     add_to_event_queue(new FastpassFlowProcessingEvent(time, this));
+}
+
+
+ArbiterProcessingEvent::ArbiterProcessingEvent(double time, FastpassArbiter* a) : Event(ARBITER_PROCESSING, time) {
+    this->arbiter = a;
+}
+
+ArbiterProcessingEvent::~ArbiterProcessingEvent() {
+}
+
+void ArbiterProcessingEvent::process_event() {
+    this->arbiter->arbiter_proc_evt = NULL;
+    this->arbiter->schedule_epoch();
 }
 

@@ -6,13 +6,27 @@
 
 #include "factory.h"
 #include "schedulinghost.h"
-#include "otherevents.h"
 
 #include "../run/params.h"
 
 extern double get_current_time();
 extern void add_to_event_queue(Event*);
 extern DCExpParams params;
+
+HostProcessingEvent::HostProcessingEvent(double time, SchedulingHost *h) : Event(HOST_PROCESSING, time) {
+    this->host = h;
+}
+
+HostProcessingEvent::~HostProcessingEvent() {
+    if (host->host_proc_event == this) {
+        host->host_proc_event = NULL;
+    }
+}
+
+void HostProcessingEvent::process_event() {
+    this->host->host_proc_event = NULL;
+    this->host->send();
+}
 
 bool HostFlowComparator::operator() (Flow* a, Flow* b) {
     // use FIFO ordering since all flows are same size

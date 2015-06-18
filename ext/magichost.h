@@ -7,10 +7,12 @@
 
 #include "../coresim/node.h"
 #include "../coresim/packet.h"
+#include "../coresim/event.h"
 
 #include "schedulinghost.h"
 
 class MagicFlow;
+class MagicHostScheduleEvent;
 
 class MagicHostFlowComparator {
     public:
@@ -40,5 +42,13 @@ class MagicHost : public SchedulingHost {
         std::map<uint32_t, MagicFlow*> receiver_pending_flows;
 };
 
+#define MAGIC_HOST_SCHEDULE 12
+class MagicHostScheduleEvent : public Event {
+    public:
+        MagicHostScheduleEvent(double time, MagicHost *host);
+        ~MagicHostScheduleEvent();
+        void process_event();
+        MagicHost *host;
+};
 
 #endif

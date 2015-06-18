@@ -22,18 +22,18 @@
 
 using namespace std;
 
-Topology *topology;
+Topology* topology;
 double current_time = 0;
-std::priority_queue<Event *, std::vector<Event *>, EventComparator> event_queue;
-std::deque<Flow *> flows_to_schedule;
-std::deque<Event *> flow_arrivals;
+std::priority_queue<Event*, std::vector<Event*>, EventComparator> event_queue;
+std::deque<Flow*> flows_to_schedule;
+std::deque<Event*> flow_arrivals;
 
-uint32_t num_outstanding_packets;
-uint32_t max_outstanding_packets;
-uint32_t num_outstanding_packets_at_50;
-uint32_t num_outstanding_packets_at_100;
-uint32_t arrival_packets_at_50;
-uint32_t arrival_packets_at_100;
+uint32_t num_outstanding_packets = 0;
+uint32_t max_outstanding_packets = 0;
+uint32_t num_outstanding_packets_at_50 = 0;
+uint32_t num_outstanding_packets_at_100 = 0;
+uint32_t arrival_packets_at_50 = 0;
+uint32_t arrival_packets_at_100 = 0;
 uint32_t arrival_packets_count = 0;
 uint32_t total_finished_flows = 0;
 uint32_t duplicated_packets_received = 0;
@@ -67,8 +67,6 @@ double get_current_time() {
 
 /* Runs a initialized scenario */
 void run_scenario() {
-//    if(params.flow_type == FASTPASS_FLOW)
-//        ((PFabricTopology*)topology)->arbiter->start_arbiter();
     // Flow Arrivals create new flow arrivals
     // Add the first flow arrival
     if (flow_arrivals.size() > 0) {

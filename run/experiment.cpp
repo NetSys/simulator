@@ -369,10 +369,10 @@ void run_experiment(int argc, char **argv, uint32_t exp_type) {
         assign_flow_deadline(flows_to_schedule);
     }
 
-    std::deque<Flow *> flows_sorted = flows_to_schedule;
+    std::deque<Flow*> flows_sorted = flows_to_schedule;
 
     struct FlowComparator {
-        bool operator() (Flow *a, Flow *b) {
+        bool operator() (Flow* a, Flow* b) {
             return a->start_time < b->start_time;
         }
     } fc;
@@ -400,6 +400,8 @@ void run_experiment(int argc, char **argv, uint32_t exp_type) {
         << "\nload_balancing (0: pkt)" << params.load_balancing 
         << std::endl;
 
+//    if(params.flow_type == FASTPASS_FLOW)
+//        ((PFabricTopology*)topology)->arbiter->start_arbiter();
     run_scenario();
 
     //write_flows_to_file(flows_sorted, "flow.tmp");
@@ -410,7 +412,7 @@ void run_experiment(int argc, char **argv, uint32_t exp_type) {
         fct_by_size, drop_rate_by_size, wait_time_by_size, first_hop_depart_by_size, last_hop_depart_by_size,
         capa_waste_by_size, log_slow_down_in_bytes;
 
-    std::cout << std::setprecision(4) ;
+    std::cout << std::setprecision(4);
 
     for (uint32_t i = 0; i < flows_sorted.size(); i++) {
         Flow *f = flows_to_schedule[i];
