@@ -3,12 +3,13 @@
 #include "../coresim/event.h"
 #include "../coresim/flow.h"
 #include "../coresim/debug.h"
-#include "../coresim/params.h"
 
 #include "magichost.h"
 #include "magicflow.h"
 #include "factory.h"
 #include "otherevents.h"
+
+#include "../run/params.h"
 
 extern double get_current_time();
 extern void add_to_event_queue(Event*);

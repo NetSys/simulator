@@ -16,7 +16,6 @@ simulator_SOURCES = 				 		 	 \
 					coresim/event.cpp 			 \
 					coresim/topology.cpp 		 \
 					coresim/flow.cpp 			 \
-					coresim/params.cpp 		 	 \
 					coresim/random_variable.cpp  \
 					ext/factory.cpp 		 	 \
 					ext/pfabricqueue.cpp         \
@@ -28,6 +27,7 @@ simulator_SOURCES = 				 		 	 \
 					ext/magicflow.cpp 		   	 \
 					ext/capabilityflow.cpp 	   	 \
 					ext/capabilityhost.cpp 	   	 \
+					run/params.cpp 		 	 \
 					run/stats.cpp 			   	 \
 					run/flow_generator.cpp       \
 					run/experiment.cpp 

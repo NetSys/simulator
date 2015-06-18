@@ -3,10 +3,11 @@
 #include "../coresim/event.h"
 #include "../coresim/packet.h"
 #include "../coresim/debug.h"
-#include "../coresim/params.h"
 
 #include "schedulinghost.h"
 #include "otherevents.h"
+
+#include "../run/params.h"
 
 extern double get_current_time();
 extern void add_to_event_queue(Event*);

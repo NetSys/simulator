@@ -11,10 +11,11 @@
 #include "event.h"
 #include "packet.h"
 #include "topology.h"
-#include "params.h"
 #include "debug.h"
 
 #include "../ext/factory.h"
+
+#include "../run/params.h"
 
 extern Topology* topology;
 extern std::priority_queue<Event*, std::vector<Event*>, EventComparator> event_queue;

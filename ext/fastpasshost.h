@@ -6,7 +6,8 @@
 
 #include "../coresim/node.h"
 #include "../coresim/packet.h"
-#include "../coresim/params.h"
+
+#include "../run/params.h"
 
 class ArbiterProcessingEvent;
 class FastpassFlow;

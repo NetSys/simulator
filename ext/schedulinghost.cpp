@@ -2,12 +2,13 @@
 
 #include "../coresim/flow.h"
 #include "../coresim/packet.h"
-#include "../coresim/params.h"
 #include "../coresim/event.h"
 
 #include "factory.h"
 #include "schedulinghost.h"
 #include "otherevents.h"
+
+#include "../run/params.h"
 
 extern double get_current_time();
 extern void add_to_event_queue(Event*);

@@ -12,12 +12,13 @@
 #include "node.h"
 #include "event.h"
 #include "topology.h"
-#include "params.h"
 #include "queue.h"
 #include "random_variable.h"
 
 #include "../ext/factory.h"
 //#include "../ext/fastpasshost.h"
+
+#include "../run/params.h"
 
 using namespace std;
 

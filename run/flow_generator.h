@@ -19,7 +19,6 @@
 #include "math.h"
 #include "assert.h"
 
-#include "../coresim/params.h"
 #include "../coresim/flow.h"
 #include "../coresim/event.h"
 #include "../coresim/node.h"
@@ -28,6 +27,8 @@
 #include "../coresim/random_variable.h"
 
 #include "../ext/factory.h"
+
+#include "params.h"
 
 extern Topology *topology;
 extern double current_time;

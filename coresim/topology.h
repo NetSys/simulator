@@ -8,11 +8,12 @@
 
 #include "node.h"
 #include "assert.h"
-#include "params.h"
 #include "packet.h"
 #include "queue.h"
 
 #include "../ext/factory.h"
+
+#include "../run/params.h"
 
 //class FastpassArbiter;
 

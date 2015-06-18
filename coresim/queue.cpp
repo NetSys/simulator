@@ -1,12 +1,14 @@
-#include "queue.h"
-#include "packet.h"
-#include "event.h"
-#include "params.h"
 #include <climits>
 #include <iostream>
 #include <stdlib.h>
 #include "assert.h"
+
+#include "queue.h"
+#include "packet.h"
+#include "event.h"
 #include "debug.h"
+
+#include "../run/params.h"
 
 extern double get_current_time(); // TODOm
 extern void add_to_event_queue(Event* ev);
