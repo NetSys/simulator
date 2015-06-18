@@ -71,9 +71,9 @@ Flow* Factory::get_flow(
         case MAGIC_FLOW:
             return new MagicFlow(id, start_time, size, src, dst);
             break;
-//        case FASTPASS_FLOW:
-//            return new FastpassFlow(id, start_time, size, src, dst);
-//            break;
+        case FASTPASS_FLOW:
+            return new FastpassFlow(id, start_time, size, src, dst);
+            break;
     }
     assert(false);
     return NULL;
@@ -98,9 +98,9 @@ Host* Factory::get_host(
         case MAGIC_HOST:
             return new MagicHost(id, rate, queue_type);
             break;
-//        case FASTPASS_HOST:
-//            return new FastpassHost(id, rate, queue_type);
-//            break;
+        case FASTPASS_HOST:
+            return new FastpassHost(id, rate, queue_type);
+            break;
     }
     assert(false);
     return NULL;

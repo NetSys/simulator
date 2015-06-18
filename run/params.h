@@ -8,64 +8,64 @@ class DCExpParams {
     public:
         std::string param_str;
 
-        int initial_cwnd;
-        int max_cwnd;
+        uint32_t initial_cwnd;
+        uint32_t max_cwnd;
         double retx_timeout_value;
-        int mss;
-        int hdr_size;
-        int queue_size;
-        int queue_type;
-        int flow_type;
-        int load_balancing; //0 per pkt, 1 per flow
+        uint32_t mss;
+        uint32_t hdr_size;
+        uint32_t queue_size;
+        uint32_t queue_type;
+        uint32_t flow_type;
+        uint32_t load_balancing; //0 per pkt, 1 per flow
 
         double propagation_delay;
         double bandwidth;
 
-        int num_flows_to_run;
+        uint32_t num_flows_to_run;
         double end_time;
         std::string cdf_or_flow_trace;
-        int cut_through;
-        int mean_flow_size;
+        uint32_t cut_through;
+        uint32_t mean_flow_size;
 
 
-        int num_hosts;
-        int num_agg_switches;
-        int num_core_switches;
-        int preemptive_queue;
-        int big_switch;
-        int host_type;
+        uint32_t num_hosts;
+        uint32_t num_agg_switches;
+        uint32_t num_core_switches;
+        uint32_t preemptive_queue;
+        uint32_t big_switch;
+        uint32_t host_type;
         double traffic_imbalance;
         double load;
 
         double reauth_limit;
 
         double magic_trans_slack;
-        int magic_delay_scheduling;
-        int magic_inflate;
+        uint32_t magic_delay_scheduling;
+        uint32_t magic_inflate;
 
-        int use_flow_trace;
-        int smooth_cdf;
-        int burst_at_beginning;
+        uint32_t use_flow_trace;
+        uint32_t smooth_cdf;
+        uint32_t burst_at_beginning;
         double capability_timeout;
         double capability_resend_timeout;
-        int capability_initial;
-        int capability_window;
-        int capability_prio_thresh;
+        uint32_t capability_initial;
+        uint32_t capability_window;
+        uint32_t capability_prio_thresh;
         double capability_window_timeout;
-        int capability_third_level;
-        int capability_fourth_level;
+        uint32_t capability_third_level;
+        uint32_t capability_fourth_level;
 
-        int ddc;
+        uint32_t ddc;
         double ddc_cpu_ratio;
         double ddc_mem_ratio;
         double ddc_disk_ratio;
-        int ddc_normalize; //0: sender send, 1: receiver side, 2: both
+        uint32_t ddc_normalize; //0: sender send, 1: receiver side, 2: both
 
-        int deadline;
-        int schedule_by_deadline;
+        uint32_t deadline;
+        uint32_t schedule_by_deadline;
         double avg_deadline;
 
-        double get_full_pkt_tran_delay(int size_in_byte = 1500)
+        double get_full_pkt_tran_delay(uint32_t size_in_byte = 1500)
         {
             return size_in_byte * 8 / this->bandwidth;
         }

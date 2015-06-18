@@ -122,14 +122,12 @@ void FastpassArbiter::schedule_proc_evt(double time)
     add_to_event_queue(this->arbiter_proc_evt);
 }
 
-void FastpassArbiter::schedule_epoch()
-{
-
-    if(total_finished_flows >= params.num_flows_to_run)
+void FastpassArbiter::schedule_epoch() {
+    if (total_finished_flows >= params.num_flows_to_run)
         return;
 
     std::vector<FastpassEpochSchedule*> schedules;
-    for(int i = 0; i < params.num_hosts; i++){
+    for (uint i = 0; i < params.num_hosts; i++){
         schedules.push_back(new FastpassEpochSchedule(get_current_time() + FASTPASS_EPOCH_TIME));
     }
 
@@ -168,7 +166,7 @@ void FastpassArbiter::receive_rts(FastpassRTS* rts)
     if(!((FastpassFlow*)rts->flow)->arbiter_received_rts)
     {
         ((FastpassFlow*) rts->flow)->arbiter_received_rts = true;
-        ((FastpassTopology*) topology)->arbiter->sending_flows.push((FastpassFlow*)rts->flow);
+        dynamic_cast<FastpassTopology*>(topology)->arbiter->sending_flows.push((FastpassFlow*)rts->flow);
     }
 
     if(rts->remaining_num_pkts < 0){

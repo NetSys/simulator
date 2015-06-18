@@ -49,7 +49,6 @@ class FastpassArbiter : public Host {
 
         ArbiterProcessingEvent* arbiter_proc_evt;
         std::priority_queue<FastpassFlow*, std::vector<FastpassFlow*>, FastpassFlowComparator> sending_flows;
-
 };
 
 #define ARBITER_PROCESSING 14

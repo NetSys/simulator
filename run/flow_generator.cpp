@@ -128,3 +128,175 @@ void FlowReader::make_flows() {
     input.close();
 }
 
+
+//
+// uninimplemented flow generation schemes
+//
+
+// alternate flow generations
+/*
+   int get_flow_size(Host* s, Host* d){
+
+   int matrix[3][3] =
+   {
+   {3*1460,    3*1460, 700*1460},
+   {3*1460,    0,      0},
+   {700*1460,  0,      0}
+   };
+
+   assert(s->host_type >= 0);
+   assert(d->host_type >= 0);
+   assert(s->host_type < 3);
+   assert(d->host_type < 3);
+
+   return matrix[s->host_type][d->host_type];
+   }
+
+   int get_num_src_or_dst(Host* d){
+   if(d->host_type == CPU)
+   return 143;
+   else if(d->host_type == MEM)
+   return 144/3;
+   else if(d->host_type == DISK)
+   return 144/3;
+   else
+   assert(false);
+   }
+
+
+   void generate_flows_to_schedule_fd_ddc(std::string filename, uint32_t num_flows, Topology *topo) {
+
+
+
+   for (int i = 0; i < topo->hosts.size(); i++){
+   topo->hosts[i]->host_type = i%3;
+   }
+
+
+
+   for (uint32_t dst = 0; dst < topo->hosts.size(); dst++) {
+   for (uint32_t src = 0; src < topo->hosts.size(); src++) {
+   if (src != dst) {
+   int flow_size = get_flow_size(topo->hosts[src], topo->hosts[dst]);
+
+   if(flow_size > 0){
+   int num_sd_pair;
+   if(params.ddc_normalize == 0) {
+   num_sd_pair = get_num_src_or_dst(topo->hosts[src]);
+   }
+   else if(params.ddc_normalize == 1) {
+   num_sd_pair = get_num_src_or_dst(topo->hosts[dst]);
+   }
+   else if (params.ddc_normalize == 2) {
+   if (topo->hosts[src]->host_type == CPU) {
+   num_sd_pair = get_num_src_or_dst(topo->hosts[src]);
+   }
+   else if(topo->hosts[dst]->host_type == CPU) {
+   num_sd_pair = get_num_src_or_dst(topo->hosts[dst]);
+   }
+   else {
+   assert(false);
+   }
+   }
+   else {
+   assert(false);
+   }
+
+   double lambda_per_pair = params.bandwidth * params.load / (flow_size * 8.0 / 1460 * 1500) / num_sd_pair;
+//std::cout << src << " " << dst << " " << flow_size << " " <<lambda_per_pair << "\n";
+ExponentialRandomVariable *nv_intarr = new ExponentialRandomVariable(1.0 / lambda_per_pair);
+double first_flow_time = 1.0 + nv_intarr->value();
+EmpiricalRandomVariable *nv_bytes = new ConstantVariable(flow_size/1460);
+
+    add_to_event_queue(
+            new FlowCreationForInitializationEvent(first_flow_time, topo->hosts[src], topo->hosts[dst], nv_bytes, nv_intarr)
+            );
+
+    }
+}
+}
+}
+
+while (event_queue.size() > 0) {
+    Event *ev = event_queue.top();
+    event_queue.pop();
+    current_time = ev->time;
+    if (flows_to_schedule.size() < num_flows) {
+        ev->process_event();
+    }
+    delete ev;
+}
+current_time = 0;
+}
+
+
+void generate_flows_to_schedule_fd_with_skew(std::string filename, uint32_t num_flows,
+        Topology *topo) {
+
+    EmpiricalRandomVariable *nv_bytes;
+    if(params.smooth_cdf)
+        nv_bytes = new EmpiricalRandomVariable(filename);
+    else
+        nv_bytes = new CDFRandomVariable(filename);
+
+    params.mean_flow_size = nv_bytes->mean_flow_size;
+
+    double lambda = params.bandwidth * params.load / (params.mean_flow_size * 8.0 / 1460 * 1500);
+
+
+
+    GaussianRandomVariable popularity(10, params.traffic_imbalance);
+    std::vector<int> sources;
+    std::vector<int> destinations;
+
+    int self_connection_count = 0;
+    for(int i = 0; i < topo->hosts.size(); i++){
+        int src_count = (int)(round(popularity.value()));
+        int dst_count = (int)(round(popularity.value()));
+        std::cout << "node:" << i << " #src:" << src_count << " #dst:" << dst_count << "\n";
+        self_connection_count += src_count * dst_count;
+        for(int j = 0; j < src_count; j++)
+            sources.push_back(i);
+        for(int j = 0; j < dst_count; j++)
+            destinations.push_back(i);
+    }
+
+    double flows_per_host = (sources.size() * destinations.size() - self_connection_count) / (double)topo->hosts.size();
+    double lambda_per_flow = lambda / flows_per_host;
+    std::cout << "Lambda: " << lambda_per_flow << std::endl;
+
+
+    ExponentialRandomVariable *nv_intarr;
+    if(params.burst_at_beginning)
+        nv_intarr = new ExponentialRandomVariable(0.000000001);
+    else
+        nv_intarr = new ExponentialRandomVariable(1.0 / lambda_per_flow);
+
+    // [expr ($link_rate*$load*1000000000)/($meanFlowSize*8.0/1460*1500)]
+    for (uint32_t i = 0; i < sources.size(); i++) {
+        for (uint32_t j = 0; j < destinations.size(); j++) {
+            if (sources[i] != destinations[j]) {
+                double first_flow_time = 1.0 + nv_intarr->value();
+                add_to_event_queue(
+                        new FlowCreationForInitializationEvent(first_flow_time,
+                            topo->hosts[sources[i]], topo->hosts[destinations[j]],
+                            nv_bytes, nv_intarr)
+                        );
+            }
+        }
+    }
+
+
+    while (event_queue.size() > 0) {
+        Event *ev = event_queue.top();
+        event_queue.pop();
+        current_time = ev->time;
+        if (flows_to_schedule.size() < num_flows) {
+            ev->process_event();
+        }
+        delete ev;
+    }
+    current_time = 0;
+}
+*/
+

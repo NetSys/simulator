@@ -58,7 +58,7 @@ class BigSwitchTopology : public Topology {
 
 };
 
-class CutThroughTopology : public PFabricTopology {
+class CutThroughTopology : virtual public PFabricTopology {
     public:
         CutThroughTopology(
                 uint32_t num_hosts, 
