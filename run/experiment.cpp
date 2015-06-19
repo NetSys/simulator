@@ -218,7 +218,7 @@ void run_experiment(int argc, char **argv, uint32_t exp_type) {
     std::sort (flows_sorted.begin(), flows_sorted.end(), fc);
 
     for (uint32_t i = 0; i < flows_sorted.size(); i++) {
-        Flow *f = flows_sorted[i];
+        Flow* f = flows_sorted[i];
         flow_arrivals.push_back(new FlowArrivalEvent(f->start_time, f));
     }
 

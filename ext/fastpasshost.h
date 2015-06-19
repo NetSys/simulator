@@ -57,7 +57,7 @@ class ArbiterProcessingEvent : public Event {
         ArbiterProcessingEvent(double time, FastpassArbiter *host);
         ~ArbiterProcessingEvent();
         void process_event();
-        FastpassArbiter *arbiter;
+        FastpassArbiter* arbiter;
 };
 
 #endif

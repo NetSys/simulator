@@ -1,11 +1,6 @@
 AUTOMAKE_OPTIONS = foreign
 
-CXXFLAGS = -g -O3 -Wall -std=c++0x -gdwarf-2
-#### -O0 -gdwarf-2 for debugging
-
-####ACLOCAL_AMFLAGS = -I m4 --install
-
-bin_PROGRAMS = simulator
+bin_PROGRAMS = simulator simdebug
 
 simulator_SOURCES = 				 		 	 \
 					coresim/main.cpp 			 \
@@ -33,4 +28,10 @@ simulator_SOURCES = 				 		 	 \
 					run/stats.cpp 			   	 \
 					run/flow_generator.cpp       \
 					run/experiment.cpp 
+
+simulator_CXXFLAGS = -g -O3 -Wall -std=c++0x -gdwarf-2
+
+simdebug_SOURCES = $(simulator_SOURCES)
+
+simdebug_CXXFLAGS = -g -O0 -Wall -std=c++0x -gdwarf-2
 

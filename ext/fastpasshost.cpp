@@ -115,9 +115,11 @@ std::map<int, FastpassFlow*> FastpassArbiter::schedule_timeslot()
 }
 
 
-void FastpassArbiter::schedule_proc_evt(double time)
-{
-    assert(this->arbiter_proc_evt == NULL);
+void FastpassArbiter::schedule_proc_evt(double time) {
+    if (this->arbiter_proc_evt != NULL) {
+        this->arbiter_proc_evt->cancelled = true;
+        this->arbiter_proc_evt = NULL;
+    }
     this->arbiter_proc_evt = new ArbiterProcessingEvent(time, this);
     add_to_event_queue(this->arbiter_proc_evt);
 }
