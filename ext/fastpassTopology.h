@@ -4,6 +4,12 @@
 #include "../coresim/topology.h"
 #include "fastpasshost.h"
 
+class FastpassAggSwitch : public AggSwitch {
+    public:
+        FastpassAggSwitch(uint32_t id, uint32_t nq1, double r1, uint32_t nq2, double r2, uint32_t queue_type);
+        Queue* queue_to_arbiter;
+};
+
 class FastpassTopology : virtual public PFabricTopology {
     public:
         FastpassTopology(
@@ -31,4 +37,5 @@ public:
     virtual Queue* get_next_hop(Packet* p, Queue* q);
     virtual double get_oracle_fct(Flow* f);
 };
+
 #endif

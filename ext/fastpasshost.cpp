@@ -37,17 +37,6 @@ FastpassFlow* FastpassEpochSchedule::get_sender() {
     return NULL;
 }
 
-FastpassAggSwitch::FastpassAggSwitch(
-        uint32_t id, 
-        uint32_t nq1, 
-        double r1, 
-        uint32_t nq2, 
-        double r2, 
-        uint32_t queue_type
-        ) : AggSwitch(id, nq1, r1, nq2, r2, queue_type) {
-    queue_to_arbiter = NULL;
-}
-
 FastpassHost::FastpassHost(uint32_t id, double rate, uint32_t queue_type) : Host(id, rate, queue_type, FASTPASS_HOST) {}
 
 void FastpassHost::receive_schedule_pkt(FastpassSchedulePkt* pkt) {

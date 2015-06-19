@@ -29,9 +29,12 @@ simulator_SOURCES = 				 		 	 \
 					run/flow_generator.cpp       \
 					run/experiment.cpp 
 
-simulator_CXXFLAGS = -g -O3 -Wall -std=c++0x -gdwarf-2
+simulator_CXXFLAGS = -g -O3 -gdwarf-2 -Wall -std=c++0x 
 
 simdebug_SOURCES = $(simulator_SOURCES)
 
-simdebug_CXXFLAGS = -g -O0 -Wall -std=c++0x -gdwarf-2
+simdebug_CXXFLAGS  = -g -O0 -Og -gdwarf-2 -Wall -std=c++0x 
+
+CFLAGS = -g -O3 -gdwarf-2 -Wall -std=c++0x 
+CXXFLAGS = -g -O3 -gdwarf-2 -Wall -std=c++0x 
 

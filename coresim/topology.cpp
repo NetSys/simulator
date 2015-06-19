@@ -10,7 +10,7 @@ extern DCExpParams params;
 Topology::Topology() {}
 
 /*
- *PFabric topology with 144 hosts (16, 9, 4)
+ * PFabric topology with 144 hosts (16, 9, 4)
  */
 PFabricTopology::PFabricTopology(
         uint32_t num_hosts, 
@@ -31,7 +31,7 @@ PFabricTopology::PFabricTopology(
 
     // Create Hosts
     for (uint32_t i = 0; i < num_hosts; i++) {
-        hosts.push_back(Factory::get_host(i, c1, queue_type, params.host_type)); // new Host(i, c1, queue_type)
+        hosts.push_back(Factory::get_host(i, c1, queue_type, params.host_type)); 
     }
 
     // Create Switches
@@ -133,8 +133,6 @@ double PFabricTopology::get_oracle_fct(Flow *f) {
     }
     return (propagation_delay + transmission_delay); //us
 }
-
-
 
 
 /*
