@@ -36,5 +36,8 @@ This can be useful if:
 * You are running many experiments in parallel.
 * You want to easily generate configuration files.
 
+To compile, the Automake and Autoconf files are included: `configure.ac` and `Makefile.am`. The makefile will produce two targets: `simulator` and `simdebug`. 
+`simdebug` is equivalent to `simulator`, except compiler optimzations are turned off to make debugging easier.
+
 ![Our Project Mascot](yaps-mascot.png)
 
