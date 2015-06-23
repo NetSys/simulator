@@ -104,20 +104,20 @@ FlowReader::FlowReader(uint32_t num_flows, Topology *topo, std::string filename)
 
 void FlowReader::make_flows() {
     std::ifstream input(filename);
-    while(!input.eof()) {
+    std::string line;
+    while (std::getline(input, line)) {
+        std::istringstream iss(line);
         double start_time, temp;
         uint32_t size, s, d;
         uint32_t id;
         
         // <id> <start_time> blah blah <size in packets> blah blah <src> <dst>
 
-        if ((input >> id).eof())
+        if (!(iss >> id >> start_time >> temp >> temp >> size >> temp >> temp >> s >> d)) {
             break;
-        input >> start_time;
-        input >> temp;
-        input >> temp; size = (uint32_t) (params.mss * temp);
-        input >> temp; input >> temp;
-        input >> s >> d;
+        }
+        
+        size = (uint32_t) (params.mss * size);
 
         std::cout << "Flow " << id << " " << start_time << " " << size << " " << s << " " << d << "\n";
         flows_to_schedule.push_back(

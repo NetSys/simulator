@@ -86,13 +86,13 @@ Packet *Flow::send(uint32_t seq) {
 
     uint32_t priority = get_priority(seq);
     p = new Packet(
-                get_current_time(), 
-                this, 
-                seq, 
-                priority, 
-                mss + hdr_size, 
-                src, 
-                dst
+            get_current_time(), 
+            this, 
+            seq, 
+            priority, 
+            mss + hdr_size, 
+            src, 
+            dst
             );
     this->total_pkt_sent++;
 
@@ -164,7 +164,7 @@ void Flow::receive(Packet *p) {
     else {
         assert(false);
     }
-    
+
     delete p;
 }
 
