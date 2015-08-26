@@ -59,7 +59,7 @@ FlowCreationForInitializationEvent::FlowCreationForInitializationEvent(
         Host *src, 
         Host *dst,
         EmpiricalRandomVariable *nv_bytes, 
-        ExponentialRandomVariable *nv_intarr
+        RandomVariable *nv_intarr
     ) : Event(FLOW_CREATION_EVENT, time) {
     this->src = src;
     this->dst = dst;
@@ -280,7 +280,7 @@ void LoggingEvent::process_event() {
         << " StartedFlows " << started_flows << "\n";
 
     if (!finished_simulation && ttl > get_current_time()) {
-        add_to_event_queue(new LoggingEvent(current_time + 0.01, ttl));
+        add_to_event_queue(new LoggingEvent(current_time + 0.1, ttl));
     }
 }
 

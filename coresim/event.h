@@ -76,14 +76,14 @@ class FlowCreationForInitializationEvent : public Event {
                 Host *src, 
                 Host *dst,
                 EmpiricalRandomVariable *nv_bytes,
-                ExponentialRandomVariable *nv_intarr
+                RandomVariable *nv_intarr
                 );
         ~FlowCreationForInitializationEvent();
         void process_event();
         Host *src;
         Host *dst;
         EmpiricalRandomVariable *nv_bytes;
-        ExponentialRandomVariable *nv_intarr;
+        RandomVariable *nv_intarr;
 };
 
 //A flow arrival event

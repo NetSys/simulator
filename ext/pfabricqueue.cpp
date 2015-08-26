@@ -12,29 +12,29 @@ extern DCExpParams params;
 PFabricQueue::PFabricQueue(uint32_t id, double rate, uint32_t limit_bytes, int location)
     : Queue(id, rate, limit_bytes, location) {}
 
-    void PFabricQueue::enque(Packet *packet) {
-        p_arrivals += 1;
-        b_arrivals += packet->size;
-        packets.push_back(packet);
-        bytes_in_queue += packet->size;
-        packet->last_enque_time = get_current_time();
-        if (bytes_in_queue > limit_bytes) {
-            uint32_t worst_priority = 0;
-            uint32_t worst_index = 0;
-            for (uint32_t i = 0; i < packets.size(); i++) {
-                if (packets[i]->pf_priority >= worst_priority) {
-                    worst_priority = packets[i]->pf_priority;
-                    worst_index = i;
-                }
+void PFabricQueue::enque(Packet *packet) {
+    p_arrivals += 1;
+    b_arrivals += packet->size;
+    packets.push_back(packet);
+    bytes_in_queue += packet->size;
+    packet->last_enque_time = get_current_time();
+    if (bytes_in_queue > limit_bytes) {
+        uint32_t worst_priority = 0;
+        uint32_t worst_index = 0;
+        for (uint32_t i = 0; i < packets.size(); i++) {
+            if (packets[i]->pf_priority >= worst_priority) {
+                worst_priority = packets[i]->pf_priority;
+                worst_index = i;
             }
-            bytes_in_queue -= packets[worst_index]->size;
-            Packet *worst_packet = packets[worst_index];
-
-            packets.erase(packets.begin() + worst_index);
-            pkt_drop++;
-            drop(worst_packet);
         }
+        bytes_in_queue -= packets[worst_index]->size;
+        Packet *worst_packet = packets[worst_index];
+
+        packets.erase(packets.begin() + worst_index);
+        pkt_drop++;
+        drop(worst_packet);
     }
+}
 
 Packet* PFabricQueue::deque() {
     if (bytes_in_queue > 0) {

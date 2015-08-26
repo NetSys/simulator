@@ -4,9 +4,14 @@
 #include <vector>
 #include <random>
 
-class UniformRandomVariable {
+class RandomVariable {
 public:
-  double value();
+    virtual double value() = 0;
+};
+
+class UniformRandomVariable : public RandomVariable {
+public:
+  virtual double value();
   UniformRandomVariable();
   UniformRandomVariable(double min, double max);
   double min_;
@@ -14,9 +19,9 @@ public:
 };
 
 
-class ExponentialRandomVariable {
+class ExponentialRandomVariable : public RandomVariable {
 public:
-  double value();
+  virtual double value();
   ExponentialRandomVariable(double avg);
   double avg_;
   UniformRandomVariable urv;
@@ -30,7 +35,7 @@ struct CDFentry {
 };
 
 
-class EmpiricalRandomVariable {
+class EmpiricalRandomVariable : public RandomVariable {
 public:
   virtual double value();
   double interpolate(double u, double x1, double y1, double x2, double y2);

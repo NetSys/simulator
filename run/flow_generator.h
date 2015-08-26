@@ -69,4 +69,12 @@ public:
     virtual void make_flows();
 };
 
+class CustomCDFFlowGenerator : public FlowGenerator {
+public:
+    CustomCDFFlowGenerator(uint32_t num_flows, Topology *topo, std::string filename, std::string interarrivals_cdf_filename);
+    virtual void make_flows();
+
+    std::string interarrivals_cdf_filename;
+};
+
 #endif

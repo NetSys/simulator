@@ -128,6 +128,58 @@ void FlowReader::make_flows() {
     input.close();
 }
 
+CustomCDFFlowGenerator::CustomCDFFlowGenerator(
+        uint32_t num_flows, 
+        Topology *topo, 
+        std::string filename, 
+        std::string interarrivals_cdf_filename
+    ) : FlowGenerator(num_flows, topo, filename) {
+    this->interarrivals_cdf_filename = interarrivals_cdf_filename;
+};
+
+void CustomCDFFlowGenerator::make_flows() {
+    EmpiricalRandomVariable *nv_bytes;
+    if (params.smooth_cdf) {
+        nv_bytes = new EmpiricalRandomVariable(filename);
+    }
+    else {
+        nv_bytes = new CDFRandomVariable(filename);
+    }
+    
+    params.mean_flow_size = nv_bytes->mean_flow_size;
+
+    CDFRandomVariable *nv_intarr = new CDFRandomVariable(interarrivals_cdf_filename);
+
+    //* [expr ($link_rate*$load*1000000000)/($meanFlowSize*8.0/1460*1500)]
+    for (uint32_t i = 0; i < topo->hosts.size(); i++) {
+        for (uint32_t j = 0; j < topo->hosts.size(); j++) {
+            if (i != j) {
+                double first_flow_time = 1.0 + nv_intarr->value();
+                add_to_event_queue(
+                    new FlowCreationForInitializationEvent(
+                        first_flow_time,
+                        topo->hosts[i], 
+                        topo->hosts[j],
+                        nv_bytes, 
+                        nv_intarr
+                    )
+                );
+            }
+        }
+    }
+
+    while (event_queue.size() > 0) {
+        Event *ev = event_queue.top();
+        event_queue.pop();
+        current_time = ev->time;
+        if (flows_to_schedule.size() < num_flows) {
+            ev->process_event();
+        }
+        delete ev;
+    }
+    current_time = 0;
+}
+
 
 //
 // uninimplemented flow generation schemes
