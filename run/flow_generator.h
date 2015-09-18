@@ -75,6 +75,8 @@ public:
     virtual void make_flows();
 
     std::string interarrivals_cdf_filename;
+private:
+    std::vector<CDFRandomVariable*>* makeCDFArray(std::string fn_template, std::string filename);
 };
 
 #endif

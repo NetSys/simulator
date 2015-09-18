@@ -102,6 +102,7 @@ Host* Factory::get_host(
             return new FastpassHost(id, rate, queue_type);
             break;
     }
+    std::cerr << host_type << " unknown\n";
     assert(false);
     return NULL;
 }

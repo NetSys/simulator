@@ -72,6 +72,7 @@ FlowCreationForInitializationEvent::~FlowCreationForInitializationEvent() {}
 void FlowCreationForInitializationEvent::process_event() {
     uint32_t id = flows_to_schedule.size();
     uint32_t size = nv_bytes->value() * 1460;
+    assert(size != 0);
     flows_to_schedule.push_back(Factory::get_flow(id, time, size, src, dst, params.flow_type));
 
     //std::cout << "event.cpp::FlowCreation:" << 1000000.0 * time << " Generating new flow " << id << " of size "

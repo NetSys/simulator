@@ -12,6 +12,7 @@ void read_experiment_parameters(std::string conf_filename, uint32_t exp_type) {
     std::ifstream input(conf_filename);
     std::string line;
     std::string key;
+    params.interarrival_cdf = "none";
     while (std::getline(input, line)) {
         std::istringstream lineStream(line);
         if (line.empty()) {
@@ -150,6 +151,9 @@ void read_experiment_parameters(std::string conf_filename, uint32_t exp_type) {
         }
         else if (key == "interarrival_cdf") {
             lineStream >> params.interarrival_cdf;
+        }
+        else if (key == "num_host_types") {
+            lineStream >> params.num_host_types;
         }
         else {
             std::cout << "Unknown conf param: " << key << " in file: " << conf_filename << "\n";

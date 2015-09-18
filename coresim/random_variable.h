@@ -35,6 +35,7 @@ struct CDFentry {
 };
 
 
+// READ VALUE IN PACKETS!!
 class EmpiricalRandomVariable : public RandomVariable {
 public:
   virtual double value();

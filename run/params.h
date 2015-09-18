@@ -65,6 +65,7 @@ class DCExpParams {
         uint32_t schedule_by_deadline;
         double avg_deadline;
         std::string interarrival_cdf;
+        uint32_t num_host_types;
 
         double get_full_pkt_tran_delay(uint32_t size_in_byte = 1500)
         {
