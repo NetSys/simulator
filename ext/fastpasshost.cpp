@@ -37,14 +37,15 @@ FastpassFlow* FastpassEpochSchedule::get_sender() {
     return NULL;
 }
 
-FastpassHost::FastpassHost(uint32_t id, double rate, uint32_t queue_type) : Host(id, rate, queue_type, FASTPASS_HOST) {}
+FastpassHost::FastpassHost(uint32_t id, double rate, uint32_t queue_type) : Host(id, rate, queue_type, FASTPASS_HOST) {
+}
 
 void FastpassHost::receive_schedule_pkt(FastpassSchedulePkt* pkt) {
     assert(pkt->schedule->start_time >= get_current_time());
     for(int i = 0; i < FASTPASS_EPOCH_PKTS; i++)
     {
         if(pkt->schedule->schedule[i])
-            pkt->schedule->schedule[i]->schedule_send_pkt(pkt->schedule->start_time + i * FASTPASS_EPOCH_TIME / FASTPASS_EPOCH_PKTS);
+            pkt->schedule->schedule[i]->schedule_send_pkt(pkt->schedule->start_time + i * params.fastpass_epoch_time / FASTPASS_EPOCH_PKTS);
     }
     delete pkt->schedule;
 }
@@ -75,7 +76,7 @@ std::map<int, FastpassFlow*> FastpassArbiter::schedule_timeslot()
         bool receiver_free = receiver_used.count(f->dst->id) == 0;
         if(debug_flow(f->id) && get_current_time() >= 1.03000023262123){
             std::cout << get_current_time() << " attempting schedule flow " << f->id << " " << f->src->id << "->" << f->dst->id << " for epoch " <<
-                get_current_time() + FASTPASS_EPOCH_TIME << " s_free" << sender_free << " r_free" << receiver_free << " arb_remaining " << f->arbiter_remaining_num_pkts <<
+                get_current_time() + params.fastpass_epoch_time << " s_free" << sender_free << " r_free" << receiver_free << " arb_remaining " << f->arbiter_remaining_num_pkts <<
                 " sender_last_pkt_sent " << f->sender_last_pkt_sent << "/" << f->size_in_pkt << "\n";
             if(!sender_free)
                 std::cout << "sender used by " << schedule[f->src->id]->id << " " << schedule[f->src->id]->src->id << "->" << schedule[f->src->id]->dst->id << "\n";
@@ -87,7 +88,7 @@ std::map<int, FastpassFlow*> FastpassArbiter::schedule_timeslot()
             receiver_used.insert(f->dst->id);
             schedule[f->src->id] = f;
             if(debug_flow(f->id))
-                std::cout << get_current_time() << " scheduled flow " << f->id << " for epoch " << get_current_time() + FASTPASS_EPOCH_TIME <<
+                std::cout << get_current_time() << " scheduled flow " << f->id << " for epoch " << get_current_time() + params.fastpass_epoch_time <<
                     " remaining pkts " << f->arbiter_remaining_num_pkts << "\n";
         }
         flows_tried.push(f);
@@ -119,7 +120,7 @@ void FastpassArbiter::schedule_epoch() {
 
     std::vector<FastpassEpochSchedule*> schedules;
     for (uint i = 0; i < params.num_hosts; i++){
-        schedules.push_back(new FastpassEpochSchedule(get_current_time() + FASTPASS_EPOCH_TIME));
+        schedules.push_back(new FastpassEpochSchedule(get_current_time() + params.fastpass_epoch_time));
     }
 
 
@@ -149,7 +150,7 @@ void FastpassArbiter::schedule_epoch() {
     }
 
     //schedule next arbiter proc evt
-    this->schedule_proc_evt(get_current_time() + FASTPASS_EPOCH_TIME);
+    this->schedule_proc_evt(get_current_time() + params.fastpass_epoch_time);
 }
 
 void FastpassArbiter::receive_rts(FastpassRTS* rts)

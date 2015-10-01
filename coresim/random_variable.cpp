@@ -53,7 +53,7 @@ EmpiricalRandomVariable::EmpiricalRandomVariable(std::string filename, bool smoo
   this->smooth = smooth;
   minCDF_ = 0;
   maxCDF_ = 1;
-  maxEntry_ = 32;
+  maxEntry_ = 65536;
   table_ = new CDFentry[maxEntry_];
   if(filename != "")
       loadCDF(filename);

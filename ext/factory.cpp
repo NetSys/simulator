@@ -14,6 +14,9 @@
 #include "fastpassflow.h"
 #include "fastpasshost.h"
 
+#include "tcpflow.h"
+#include "tcpflow.cpp"
+
 /* Factory method to return appropriate queue */
 Queue* Factory::get_queue(
         uint32_t id, 
@@ -73,6 +76,9 @@ Flow* Factory::get_flow(
             break;
         case FASTPASS_FLOW:
             return new FastpassFlow(id, start_time, size, src, dst);
+            break;
+        case VANILLA_TCP_FLOW:
+            return new TCPFlow(id, start_time, size, src, dst);
             break;
     }
     assert(false);

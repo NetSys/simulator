@@ -25,13 +25,18 @@ FastpassTopology::FastpassTopology(
         double bandwidth,
         uint32_t queue_type
         ) : PFabricTopology(num_hosts, num_agg_switches, num_core_switches, bandwidth, queue_type) {
-    if (!this->agg_switches.empty()) {
-        this->agg_switches.clear();
+    for (auto s = this->switches.begin(); s != this->switches.end(); s++) {
+        for (auto q = (*s)->queues.begin(); q != (*s)->queues.end(); q++) {
+            delete *q; 
+        }
+        delete *s;
     }
 
-    if (!this->core_switches.empty()) {
-        this->core_switches.clear();
-    }
+    this->agg_switches.clear();
+    this->core_switches.clear();
+    this->switches.clear();
+    this->hosts.clear();
+    Queue::instance_count = 0;
 
     uint32_t hosts_per_agg_switch = num_hosts / num_agg_switches;
     //std::cout << "\n\n" << hosts_per_agg_switch << "\n\n";
@@ -74,6 +79,8 @@ FastpassTopology::FastpassTopology(
     }
 
     arbiter->queue->set_src_dst(arbiter, agg_switches[0]);
+    // std::cout << "Linking arbiter with queue " << arbiter->queue->id << " " << arbiter->queue->unique_id << " with agg switch " << agg_switches[0]->id << "\n" ;
+
 
     // For agg switches -- REMAINING
     for (uint32_t i = 0; i < num_agg_switches; i++) {
@@ -81,24 +88,32 @@ FastpassTopology::FastpassTopology(
         for (uint32_t j = 0; j < hosts_per_agg_switch; j++) { // TODO make generic
             Queue *q = agg_switches[i]->queues[j];
             q->set_src_dst(agg_switches[i], hosts[i * 16 + j]);
-            //std::cout << "Linking Agg " << i << " to Host" << i * 16 + j << "\n";
+            // std::cout << "Linking Agg " << i << " to Host" << i * 16 + j << " with queue " << q->id << " " << q->unique_id << "\n";
         }
         // Queues to Core
         for (uint32_t j = 0; j < num_core_switches; j++) {
             Queue *q = agg_switches[i]->queues[j + 16];
             q->set_src_dst(agg_switches[i], core_switches[j]);
-            //std::cout << "Linking Agg " << i << " to Core" << j << "\n";
+            // std::cout << "Linking Agg " << i << " to Core" << j << " with queue " << q->id << " " << q->unique_id << "\n";
         }
     }
 
     ((FastpassAggSwitch*) agg_switches[0])->queue_to_arbiter->set_src_dst(agg_switches[0], arbiter);
+    // std::cout << "Linking arbiter switch " << agg_switches[0]->id << " with queue " << ((FastpassAggSwitch*) agg_switches[0])->queue_to_arbiter->id << " " << ((FastpassAggSwitch*) agg_switches[0])->queue_to_arbiter->unique_id << "\n";
 
     //For core switches -- PERFECT
     for (uint32_t i = 0; i < num_core_switches; i++) {
         for (uint32_t j = 0; j < num_agg_switches; j++) {
             Queue *q = core_switches[i]->queues[j];
             q->set_src_dst(core_switches[i], agg_switches[j]);
-            //std::cout << "Linking Core " << i << " to Agg" << j << "\n";
+            // std::cout << "Linking Core " << i << " to Agg" << j << " with queue " << q->id << " " << q->unique_id << "\n";
+        }
+    }
+
+    for (auto s = this->switches.begin(); s != this->switches.end(); s++) {
+        for (auto q = (*s)->queues.begin(); q != (*s)->queues.end(); q++) {
+            assert((*q)->src == (*s));
+            assert((*q)->src != NULL && (*q)->dst != NULL);
         }
     }
 }

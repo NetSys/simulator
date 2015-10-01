@@ -76,7 +76,7 @@ public:
 
     std::string interarrivals_cdf_filename;
 private:
-    std::vector<CDFRandomVariable*>* makeCDFArray(std::string fn_template, std::string filename);
+    std::vector<EmpiricalRandomVariable*>* makeCDFArray(std::string fn_template, std::string filename);
 };
 
 #endif

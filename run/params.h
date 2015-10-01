@@ -60,12 +60,15 @@ class DCExpParams {
         double ddc_mem_ratio;
         double ddc_disk_ratio;
         uint32_t ddc_normalize; //0: sender send, 1: receiver side, 2: both
+        uint32_t ddc_type;
 
         uint32_t deadline;
         uint32_t schedule_by_deadline;
         double avg_deadline;
         std::string interarrival_cdf;
         uint32_t num_host_types;
+
+        double fastpass_epoch_time;
 
         double get_full_pkt_tran_delay(uint32_t size_in_byte = 1500)
         {
@@ -79,7 +82,7 @@ class DCExpParams {
 #define CAPABILITY_NOTIFY_BLOCKING false
 #define CAPABILITY_HOLD false
 
-#define FASTPASS_EPOCH_TIME 0.000010
+//#define FASTPASS_EPOCH_TIME 0.000010
 #define FASTPASS_EPOCH_PKTS 8
 
 void read_experiment_parameters(std::string conf_filename, uint32_t exp_type); 

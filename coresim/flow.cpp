@@ -232,6 +232,9 @@ void Flow::cancel_retx_event() {
 
 
 uint32_t Flow::get_priority(uint32_t seq) {
+    if (params.flow_type == 1) {
+        return 1;
+    }
     if(params.deadline && params.schedule_by_deadline)
     {
         return (int)(this->deadline * 1000000);

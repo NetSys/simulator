@@ -72,7 +72,7 @@ void FastpassFlow::send_data_pkt() {
     if(sender_remaining_num_pkts > 0) sender_remaining_num_pkts--;
     add_to_event_queue(new PacketQueuingEvent(get_current_time(), p, src->queue));
     if(this->sender_remaining_num_pkts == 0)
-        add_to_event_queue(new FastpassTimeoutEvent(get_current_time() + FASTPASS_EPOCH_TIME, this));
+        add_to_event_queue(new FastpassTimeoutEvent(get_current_time() + params.fastpass_epoch_time, this));
 }
 
 

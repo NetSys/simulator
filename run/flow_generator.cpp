@@ -137,8 +137,8 @@ CustomCDFFlowGenerator::CustomCDFFlowGenerator(
     this->interarrivals_cdf_filename = interarrivals_cdf_filename;
 };
 
-std::vector<CDFRandomVariable*>* CustomCDFFlowGenerator::makeCDFArray(std::string fn_template, std::string filename) {
-    auto pairCDFs = new std::vector<CDFRandomVariable*>(params.num_host_types * params.num_host_types);
+std::vector<EmpiricalRandomVariable*>* CustomCDFFlowGenerator::makeCDFArray(std::string fn_template, std::string filename) {
+    auto pairCDFs = new std::vector<EmpiricalRandomVariable*>(params.num_host_types * params.num_host_types);
     for (auto i = 0; i < params.num_host_types; i++) {
         for (auto j = 0; j < params.num_host_types; j++) {
             if (i == j) {
@@ -161,72 +161,64 @@ std::vector<CDFRandomVariable*>* CustomCDFFlowGenerator::makeCDFArray(std::strin
 }
 
 uint32_t* customCdfFlowGenerator_getDestinations(uint32_t num_hosts, uint32_t sender_id, uint32_t num_dests) {
-    auto dests = new uint32_t[num_dests];
-    for (uint32_t i = 0; i < num_dests;) {
-        uint32_t dest = rand() % num_hosts;
-        if (dest == sender_id) continue;
-        dests[i] = dest;
-        i++;
+    if (params.ddc_type == 0) {
+        auto dests = new uint32_t[num_dests];
+        for (uint32_t i = 0; i < num_dests;i++) {
+            uint32_t dest = rand() % num_hosts;
+            if (dest == sender_id) continue;
+            dests[i] = dest;
+        }
+        return dests;
     }
-    return dests;
-}
-
-/*
-void CustomCDFFlowGenerator::make_flows_alt() {
-    std::vector<CDFRandomVariable*>* sizeMatrix = makeCDFArray("%s/cdf_sizes_%d-%d.txt", filename);
-    std::vector<CDFRandomVariable*>* interarrivalMatrix = makeCDFArray("%s/cdf_interarrivals_%d-%d.txt", filename);
-    uint32_t num_hosts = topo->hosts.size();
-
-    // assign each node to a group
-    std::vector<uint32_t> nodes;
-    for (uint32_t i = 0; i < num_hosts; i++) nodes.push_back(i);
-    std::random_shuffle(nodes.begin(), nodes.end());
-    uint32_t group_id = 0;
-    uint32_t sender_id = 0;
-    const uint32_t num_nodes_in_group = 13;
-
-    for (auto it = nodes.begin(); it != nodes.end() it++) {
-        if (sender_id < num_nodes_in_group) {
-            
-            sender_id++;
+    else {
+        auto dests = new uint32_t[num_dests];
+        uint32_t rack_start = sender_id / 16;
+        if (sender_id % 16 < 13) {
+            auto index = 0;
+            for (auto i = 0; i < num_dests + 1; i++) {
+                if (rack_start * 16 + i == sender_id) continue;
+                dests[index++] = rack_start * 16 + i;
+            }
         }
         else {
-            group_id++;
+            uint32_t start = 0;
+            if (sender_id >= 78) start = 78;
+            auto j = 0;
+            for (auto i = start; i < 144; i++) {
+                if (j == num_dests) break;
+                if (i % 16 < 13 || i == sender_id) continue;
+                dests[j] = i;
+                j++;
+            }
         }
-    }
 
-    
-    delete sizeMatrix;
-    delete interarrivalMatrix;
-
-    while (event_queue.size() > 0) {
-        Event *ev = event_queue.top();
-        event_queue.pop();
-        current_time = ev->time;
-        if (flows_to_schedule.size() < num_flows) {
-            ev->process_event();
-        }
-        delete ev;
+        return dests;
     }
-    current_time = 0;
 }
-*/
 
 void CustomCDFFlowGenerator::make_flows() {
-    std::vector<CDFRandomVariable*>* sizeMatrix = makeCDFArray("%s/cdf_sizes_%d-%d.txt", filename);
-    std::vector<CDFRandomVariable*>* interarrivalMatrix = makeCDFArray("%s/cdf_interarrivals_%d-%d.txt", filename);
+    std::vector<EmpiricalRandomVariable*>* sizeMatrix = makeCDFArray("%s/cdf_sizes_%d-%d.txt", filename);
+    std::vector<EmpiricalRandomVariable*>* interarrivalMatrix = makeCDFArray("%s/cdf_interarrivals_%d-%d.txt", filename);
     uint32_t num_hosts = topo->hosts.size();
 
     for (uint32_t i = 0; i < num_hosts; i++) {
         // select a sender profile randomly, then pick n-1 destinations for each dest.
         uint32_t sender_profile = i % params.num_host_types;
         uint32_t* dests = customCdfFlowGenerator_getDestinations(num_hosts, i, params.num_host_types - 1);
-        for (uint32_t j = 0; j < params.num_host_types - 1; j++) {
-            CDFRandomVariable* nv_bytes = sizeMatrix->at(params.num_host_types * sender_profile + j);
-            CDFRandomVariable* nv_intarr = interarrivalMatrix->at(params.num_host_types * sender_profile + j);
+        if (params.ddc_type != 0) {
+            for (auto d = 0; d < params.num_host_types - 2; d++) {
+                if (i % 16 < 13 && (i / 16) != (dests[d] / 16)) {
+                    std::cout << i << " " << d << " " << dests[d] << "  " << i / 16 << " " << dests[d] / 16 << "\n";
+                    assert(false);
+                }
+            }
+        }
+        for (uint32_t j = 0; j < params.num_host_types - 2; j++) {
+            EmpiricalRandomVariable* nv_bytes = sizeMatrix->at(params.num_host_types * sender_profile + j);
+            EmpiricalRandomVariable* nv_intarr = interarrivalMatrix->at(params.num_host_types * sender_profile + j);
             uint32_t d = dests[j];
             // each node represents 3x of that resource.
-            for (uint32_t k = 0; k < 3; k++) {
+            //for (uint32_t k = 0; k < 3; k++) {
                 if (nv_bytes != NULL && nv_intarr != NULL) {
                     double first_flow_time = 1.0 + nv_intarr->value();
                     add_to_event_queue(
@@ -239,8 +231,9 @@ void CustomCDFFlowGenerator::make_flows() {
                         )
                     );
                 }
-            }
+            //}
         }
+        delete dests;
     }
 
     delete sizeMatrix;

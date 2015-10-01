@@ -18,6 +18,8 @@
 #define MAGIC_FLOW 113
 #define FASTPASS_FLOW 114
 
+#define VANILLA_TCP_FLOW 42
+
 /* Host types */
 #define NORMAL_HOST 1
 #define SCHEDULING_HOST 2

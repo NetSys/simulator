@@ -236,7 +236,7 @@ void CapabilityFlow::set_capability_count(){
     this->capability_count = init_capa;
     this->last_capa_data_seq_num_sent = init_capa - 1;
     if(this->capability_count == this->capability_goal){
-        this->redundancy_ctrl_timeout = get_current_time() + init_capa * 0.0000012 * 2;
+        this->redundancy_ctrl_timeout = get_current_time() + init_capa * params.get_full_pkt_tran_delay() * 2;
     }
 }
 

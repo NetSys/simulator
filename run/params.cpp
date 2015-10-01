@@ -137,6 +137,9 @@ void read_experiment_parameters(std::string conf_filename, uint32_t exp_type) {
         else if (key == "ddc_normalize") {
             lineStream >> params.ddc_normalize;
         }
+        else if (key == "ddc_type") {
+            lineStream >> params.ddc_type;
+        }
         else if (key == "deadline") {
             lineStream >> params.deadline;
         }
@@ -159,6 +162,8 @@ void read_experiment_parameters(std::string conf_filename, uint32_t exp_type) {
             std::cout << "Unknown conf param: " << key << " in file: " << conf_filename << "\n";
             assert(false);
         }
+
+        params.fastpass_epoch_time = 1500 * 8 * (FASTPASS_EPOCH_PKTS + 0.5) / params.bandwidth;
 
         params.param_str.append(line);
         params.param_str.append(", ");
