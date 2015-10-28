@@ -218,7 +218,7 @@ void CustomCDFFlowGenerator::make_flows() {
             EmpiricalRandomVariable* nv_intarr = interarrivalMatrix->at(params.num_host_types * sender_profile + j);
             uint32_t d = dests[j];
             // each node represents 3x of that resource.
-            //for (uint32_t k = 0; k < 3; k++) {
+            for (uint32_t k = 0; k < 3; k++) {
                 if (nv_bytes != NULL && nv_intarr != NULL) {
                     double first_flow_time = 1.0 + nv_intarr->value();
                     add_to_event_queue(
@@ -231,7 +231,7 @@ void CustomCDFFlowGenerator::make_flows() {
                         )
                     );
                 }
-            //}
+            }
         }
         delete dests;
     }
@@ -263,15 +263,9 @@ void PermutationTM::make_flows() {
     params.mean_flow_size = nv_bytes->mean_flow_size;
 
     double lambda = params.bandwidth * params.load / (params.mean_flow_size * 8.0 / 1460 * 1500);
-    double lambda_per_host = lambda / (topo->hosts.size() - 1);
-    std::cout << "Lambda: " << lambda_per_host << std::endl;
+    std::cout << "Lambda: " << lambda << std::endl;
 
-
-    ExponentialRandomVariable *nv_intarr;
-//    if (params.burst_at_beginning)
-//        nv_intarr = new ExponentialRandomVariable(0.0000001);
-//    else
-    nv_intarr = new ExponentialRandomVariable(1.0 / lambda_per_host);
+    auto *nv_intarr = new ExponentialRandomVariable(1.0 / lambda);
 
     std::set<uint32_t> dests;
     for (uint32_t i = 0; i < topo->hosts.size(); i++) {
