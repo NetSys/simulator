@@ -85,7 +85,6 @@ FastpassRTS::FastpassRTS(Flow *flow, Host *src, Host *dst, int remaining_pkt) : 
     this->remaining_num_pkts = remaining_pkt;
 }
 
-
 FastpassSchedulePkt::FastpassSchedulePkt(Flow *flow, Host *src, Host *dst, FastpassEpochSchedule* schd) : Packet(0, flow, 0, 0, params.hdr_size, src, dst) {
     this->type = FASTPASS_SCHEDULE;
     this->schedule = schd;

@@ -41,12 +41,17 @@ FastpassHost::FastpassHost(uint32_t id, double rate, uint32_t queue_type) : Host
 }
 
 void FastpassHost::receive_schedule_pkt(FastpassSchedulePkt* pkt) {
-    assert(pkt->schedule->start_time >= get_current_time());
+    // assert(pkt->schedule->start_time >= get_current_time());
+    if (pkt->schedule->start_time >= get_current_time()) {
+        pkt->schedule->start_time = get_current_time();
+    }
+
     for(int i = 0; i < FASTPASS_EPOCH_PKTS; i++)
     {
         if(pkt->schedule->schedule[i])
             pkt->schedule->schedule[i]->schedule_send_pkt(pkt->schedule->start_time + i * params.fastpass_epoch_time / FASTPASS_EPOCH_PKTS);
     }
+
     delete pkt->schedule;
 }
 
