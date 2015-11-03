@@ -18,6 +18,7 @@
 #include <cstdlib>
 #include <ctime>
 #include <iomanip>
+#include <set>
 #include "math.h"
 #include "assert.h"
 
@@ -77,6 +78,13 @@ public:
     std::string interarrivals_cdf_filename;
 private:
     std::vector<EmpiricalRandomVariable*>* makeCDFArray(std::string fn_template, std::string filename);
+};
+
+class PermutationTM : public FlowGenerator {
+public:
+    PermutationTM(uint32_t num_flows, Topology *topo, std::string filename);
+    virtual void make_flows();
+
 };
 
 #endif

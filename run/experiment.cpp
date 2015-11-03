@@ -190,6 +190,10 @@ void run_experiment(int argc, char **argv, uint32_t exp_type) {
         fg = new CustomCDFFlowGenerator(num_flows, topology, params.cdf_or_flow_trace, params.interarrival_cdf);
         fg->make_flows();
     }
+    else if (params.permutation_tm != 0) {
+        fg = new PermutationTM(num_flows, topology, params.cdf_or_flow_trace);
+        fg->make_flows();
+    }
     else {
         if (params.ddc) {
             // TODO ddc flow gen not yet implemented, need to move to FlowGenerator
