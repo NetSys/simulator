@@ -39,5 +39,12 @@ This can be useful if:
 To compile, the Automake and Autoconf files are included: `configure.ac` and `Makefile.am`. The makefile will produce two targets: `simulator` and `simdebug`. 
 `simdebug` is equivalent to `simulator`, except compiler optimzations are turned off to make debugging easier.
 
+Authors
+-------
+
+* Gautam Kumar
+* Akshay Narayan
+* Peter Gao
+
 ![Our Project Mascot](yaps-mascot.png)
 
