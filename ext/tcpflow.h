@@ -9,7 +9,8 @@ class TCPFlow : public Flow {
     public:
         TCPFlow(uint32_t id, double start_time, uint32_t size, Host* s, Host* d);
         virtual void start_flow();
-        virtual void receive(Packet* p);
+        virtual void receive(Packet *p);
+        virtual uint32_t get_priority(uint32_t seq);
 };
 
 #endif
