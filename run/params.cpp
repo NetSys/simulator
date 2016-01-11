@@ -162,6 +162,9 @@ void read_experiment_parameters(std::string conf_filename, uint32_t exp_type) {
         else if (key == "permutation_tm") {
             lineStream >> params.permutation_tm;
         }
+        else if (key == "dctcp_mark_thresh") {
+            lineStream >> params.dctcp_mark_thresh;
+        }
         else {
             std::cout << "Unknown conf param: " << key << " in file: " << conf_filename << "\n";
             assert(false);
