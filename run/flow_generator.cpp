@@ -197,8 +197,8 @@ uint32_t* customCdfFlowGenerator_getDestinations(uint32_t num_hosts, uint32_t se
 }
 
 void CustomCDFFlowGenerator::make_flows() {
-    std::vector<EmpiricalRandomVariable*>* sizeMatrix = makeCDFArray("%s/cdf_sizes_%d-%d.txt", filename);
-    std::vector<EmpiricalRandomVariable*>* interarrivalMatrix = makeCDFArray("%s/cdf_interarrivals_%d-%d.txt", filename);
+    std::vector<EmpiricalRandomVariable*>* sizeMatrix = makeCDFArray("%s/%d_%d_sizes.cdf", filename);
+    std::vector<EmpiricalRandomVariable*>* interarrivalMatrix = makeCDFArray("%s/%d_%d_interarrivals.cdf", filename);
     uint32_t num_hosts = topo->hosts.size();
 
     for (uint32_t i = 0; i < num_hosts; i++) {
