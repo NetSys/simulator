@@ -14,7 +14,7 @@ class DctcpFlow : public Flow {
         // Receiver Side
         void receive_data_pkt(Packet* p);
         void mark_receipt(Packet* p);
-        void determine_ack(Packet* p);
+        void determine_ack(DctcpPacket* p);
         
         // ECN-Echo + Delayed ACK state machine
         //

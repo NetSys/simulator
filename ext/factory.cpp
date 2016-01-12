@@ -15,7 +15,9 @@
 #include "fastpasshost.h"
 
 #include "tcpflow.h"
-#include "tcpflow.cpp"
+
+#include "dctcpQueue.h"
+#include "dctcpFlow.h"
 
 /* Factory method to return appropriate queue */
 Queue* Factory::get_queue(
@@ -34,6 +36,8 @@ Queue* Factory::get_queue(
             return new PFabricQueue(id, rate, queue_size, location);
         case PROB_DROP_QUEUE:
             return new ProbDropQueue(id, rate, queue_size, drop_prob, location);
+        case DCTCP_QUEUE:
+            return new DctcpQueue(id, rate, queue_size, location);
     }
     assert(false);
     return NULL;
@@ -79,6 +83,9 @@ Flow* Factory::get_flow(
             break;
         case VANILLA_TCP_FLOW:
             return new TCPFlow(id, start_time, size, src, dst);
+            break;
+        case DCTCP_FLOW:
+            return new DctcpFlow(id, start_time, size, src, dst);
             break;
     }
     assert(false);

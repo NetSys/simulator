@@ -1,12 +1,16 @@
 #include <cmath>
+#include <assert.h>
 #include "dctcpFlow.h"
 
+#include "../coresim/event.h"
 #include "../run/params.h"
 
 extern double get_current_time(); 
 extern void add_to_event_queue(Event *);
 extern int get_event_queue_size();
 extern DCExpParams params;
+extern uint32_t num_outstanding_packets;
+extern uint32_t duplicated_packets_received;
 
 DctcpFlow::DctcpFlow(
     uint32_t id, 
@@ -127,7 +131,7 @@ void DctcpFlow::receive_data_pkt(Packet* p) {
 void DctcpFlow::increase_cwnd() {
     // cwnd <- cwnd * (1 - a/2)
     // floor(x + 0.5) same as round to nearest integer
-    cwnd_mss = (uint32_t) floor(cwnd * (1 - dctcp_alpha / 2) + 0.5);
+    cwnd_mss = (uint32_t) floor(cwnd_mss * (1 - dctcp_alpha / 2) + 0.5);
 }
 
 void DctcpFlow::receive_ack(Ack* a) {
@@ -158,7 +162,7 @@ void DctcpFlow::receive_ack(Ack* a) {
         // a <- (1 - g) * a + g * F
         uint32_t ecn_set_count = 0;
         for (uint32_t i = 0; i < cwnd_mss; i++) 
-            ecn_set_count += ecn_history[i]
+            ecn_set_count += (*ecn_history)[i];
         double frac_ecn = ecn_set_count / cwnd_mss;
         dctcp_alpha = (1 - dctcp_g) * dctcp_alpha + dctcp_g * frac_ecn;
 
