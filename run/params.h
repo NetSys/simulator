@@ -73,7 +73,7 @@ class DCExpParams {
         uint32_t permutation_tm;
 
         uint32_t dctcp_mark_thresh;
-        uint32_t dctcp_delayed_ack_freq;
+        //uint32_t dctcp_delayed_ack_freq;
 
         double get_full_pkt_tran_delay(uint32_t size_in_byte = 1500)
         {

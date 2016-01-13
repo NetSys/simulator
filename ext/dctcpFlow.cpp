@@ -19,8 +19,8 @@ DctcpFlow::DctcpFlow(
     Host *s, 
     Host *d
     ) : Flow(id, start_time, size, s, d) {
-    ce_state = false;
-    delayed_ack_counter = 0;
+    //ce_state = false;
+    //delayed_ack_counter = 0;
     dctcp_g = 0.0625;
     dctcp_alpha = 0;
     ecn_history = new std::deque<bool>(max_cwnd);
@@ -48,6 +48,8 @@ void DctcpFlow::receive(Packet* p) {
 
 //Receiver Side
 
+//Delayed Ack Implementation
+/*
 void DctcpFlow::mark_receipt(Packet* p) {
     received_count++;
     total_queuing_time += p->total_queuing_delay;
@@ -127,6 +129,45 @@ void DctcpFlow::receive_data_pkt(Packet* p) {
         }
     }
 }
+*/
+
+void DctcpFlow::receive_data_pkt(Packet* p) {
+    received_count++;
+    total_queuing_time += p->total_queuing_delay;
+
+    if (received.count(p->seq_no) == 0) {
+        received[p->seq_no] = true;
+        if(num_outstanding_packets >= ((p->size - hdr_size) / (mss)))
+            num_outstanding_packets -= ((p->size - hdr_size) / (mss));
+        else
+            num_outstanding_packets = 0;
+        received_bytes += (p->size - hdr_size);
+    } else {
+        duplicated_packets_received += 1;
+    }
+    if (p->seq_no > max_seq_no_recv) {
+        max_seq_no_recv = p->seq_no;
+    }
+    // Determing which ack to send
+    uint32_t s = recv_till;
+    bool in_sequence = true;
+    std::vector<uint32_t> sack_list;
+    while (s <= max_seq_no_recv) {
+        if (received.count(s) > 0) {
+            if (in_sequence) {
+                recv_till += mss;
+            } else {
+                sack_list.push_back(s);
+            }
+        } else {
+            in_sequence = false;
+        }
+        s += mss;
+    }
+
+    Packet *a = new DctcpAck(this, recv_till, sack_list, hdr_size, dst, src, ((DctcpPacket*) p)->ecn); //Acks are dst->src
+    add_to_event_queue(new PacketQueuingEvent(get_current_time(), a, dst->queue));
+}
 
 void DctcpFlow::increase_cwnd() {
     // cwnd <- cwnd * (1 - a/2)
@@ -153,18 +194,35 @@ void DctcpFlow::receive_ack(Ack* a) {
         last_unacked_seq = ack;
         
         // Update ecn_history
-        for (uint32_t i = 0; i < dca->delayed_num; i++)
-            ecn_history->push_front(dca->ecn);
+        //for (uint32_t i = 0; i < dca->delayed_num; i++) // only needed for delayed ack
+        assert(dca->ecn == 1 || dca->ecn == 0);
+        ecn_history->push_front(dca->ecn);
         while (ecn_history->size() > max_cwnd) 
             ecn_history->pop_back();
 
         // Update alpha
         // a <- (1 - g) * a + g * F
         uint32_t ecn_set_count = 0;
-        for (uint32_t i = 0; i < cwnd_mss; i++) 
-            ecn_set_count += (*ecn_history)[i];
+        uint32_t sz = ecn_history->size();
+        for (uint32_t i = 0; i < cwnd_mss; i++)  {
+            assert(i < sz);
+            if (ecn_history->at(i) == true) {
+                ecn_set_count ++;
+            }
+
+            // TODO doing the following causes an unexplainable bug at -O2 but not -Og
+            //
+            //volatile char setecn = (ecn_history->at(i) ) ? 1 : 0;
+            //std::cout << setecn << " " << ecn_history->at(i) << "\n";
+            //assert(ecn_history->at(i) == 0 || ecn_history->at(i) == 1);
+            //assert(setecn == 1 || setecn == 0);
+            //ecn_set_count += setecn;
+        }
+        assert(ecn_set_count <= cwnd_mss && cwnd_mss <= sz);
         double frac_ecn = ecn_set_count / cwnd_mss;
+        assert(frac_ecn >= 0.0 && frac_ecn <= 1.0);
         dctcp_alpha = (1 - dctcp_g) * dctcp_alpha + dctcp_g * frac_ecn;
+        assert(dctcp_alpha >= 0.0 && dctcp_alpha <= 1.0);
 
         // Adjust cwnd
         increase_cwnd();

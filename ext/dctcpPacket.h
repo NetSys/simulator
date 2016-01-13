@@ -24,7 +24,7 @@ class DctcpPacket : public Packet {
 class DctcpAck : public Ack {
     public:
         bool ecn;
-        uint32_t delayed_num;
+        //uint32_t delayed_num;
 
         DctcpAck(
             Flow *flow, 
@@ -33,11 +33,11 @@ class DctcpAck : public Ack {
             uint32_t size,
             Host* src,
             Host* dst,
-            bool ecn,
-            uint32_t delayed_num
+            bool ecn
+        //    uint32_t delayed_num
         ) : Ack(flow, seq_no_acked, sack_list, size, src, dst) {
             this->ecn = ecn;
-            this->delayed_num = delayed_num;
+        //    this->delayed_num = delayed_num;
         }
 };
 

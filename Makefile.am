@@ -36,8 +36,8 @@ simulator_CXXFLAGS = -g -O3 -gdwarf-2 -Wall -std=c++0x
 
 simdebug_SOURCES = $(simulator_SOURCES)
 
-simdebug_CXXFLAGS  = -g -O0 -Og -gdwarf-2 -Wall -std=c++0x 
+simdebug_CXXFLAGS  = -g -Og -gdwarf-2 -Wall -std=c++0x 
 
-CFLAGS = -g -O3 -gdwarf-2 -Wall -std=c++0x 
-CXXFLAGS = -g -O3 -gdwarf-2 -Wall -std=c++0x 
+#CFLAGS = -g -O3 -gdwarf-2 -Wall -std=c++0x 
+#CXXFLAGS = -g -O3 -gdwarf-2 -Wall -std=c++0x 
 

@@ -12,10 +12,12 @@ class DctcpFlow : public Flow {
         virtual uint32_t get_priority(uint32_t seq);
 
         // Receiver Side
-        void receive_data_pkt(Packet* p);
-        void mark_receipt(Packet* p);
-        void determine_ack(DctcpPacket* p);
-        
+        virtual void receive_data_pkt(Packet* p);
+        //void mark_receipt(Packet* p);
+        //void determine_ack(DctcpPacket* p);
+       
+        // After looking at DCTCP NS2 code, Delayed ACK is not used.
+        //
         // ECN-Echo + Delayed ACK state machine
         //
         // while no ECN set, send 1 ACK per m packets with ECN = 0
@@ -24,8 +26,8 @@ class DctcpFlow : public Flow {
         // if ECN not set in received packet, immediately send ACK with ECN = 1
         // delayed ACK m number typically = 2. params.dctcp_delayed_ack_freq
 
-        bool ce_state;
-        uint32_t delayed_ack_counter;
+        //bool ce_state;
+        //uint32_t delayed_ack_counter;
 
         // Sender Side
         virtual void receive(Packet* p);
