@@ -1,5 +1,7 @@
 #include "tcpflow.h"
 
+#include "../coresim/event.h"
+
 extern double get_current_time();
 extern void add_to_event_queue(Event* ev);
 
