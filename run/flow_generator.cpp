@@ -218,7 +218,7 @@ void CustomCDFFlowGenerator::make_flows() {
             EmpiricalRandomVariable* nv_intarr = interarrivalMatrix->at(params.num_host_types * sender_profile + j);
             uint32_t d = dests[j];
             // each node represents 3x of that resource.
-            for (uint32_t k = 0; k < 3; k++) {
+            //for (uint32_t k = 0; k < 3; k++) {
                 if (nv_bytes != NULL && nv_intarr != NULL) {
                     double first_flow_time = 1.0 + nv_intarr->value();
                     add_to_event_queue(
@@ -231,7 +231,7 @@ void CustomCDFFlowGenerator::make_flows() {
                         )
                     );
                 }
-            }
+            //}
         }
         delete dests;
     }
