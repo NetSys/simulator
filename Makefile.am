@@ -24,6 +24,9 @@ simulator_SOURCES = 				 		 	 \
 					ext/fastpassflow.cpp 	   	 \
 					ext/fastpasshost.cpp 	   	 \
 					ext/fastpassTopology.cpp	 \
+					ext/tcpflow.cpp				 \
+					ext/dctcpQueue.cpp			 \
+					ext/dctcpFlow.cpp			 \
 					run/params.cpp 		 	 	 \
 					run/stats.cpp 			   	 \
 					run/flow_generator.cpp       \
@@ -33,8 +36,8 @@ simulator_CXXFLAGS = -g -O3 -gdwarf-2 -Wall -std=c++0x
 
 simdebug_SOURCES = $(simulator_SOURCES)
 
-simdebug_CXXFLAGS  = -g -O0 -Og -gdwarf-2 -Wall -std=c++0x 
+simdebug_CXXFLAGS  = -g -Og -gdwarf-2 -Wall -std=c++0x 
 
-CFLAGS = -g -O3 -gdwarf-2 -Wall -std=c++0x 
-CXXFLAGS = -g -O3 -gdwarf-2 -Wall -std=c++0x 
+#CFLAGS = -g -O3 -gdwarf-2 -Wall -std=c++0x 
+#CXXFLAGS = -g -O3 -gdwarf-2 -Wall -std=c++0x 
 

@@ -9,16 +9,16 @@
 #define DROPTAIL_QUEUE 1
 #define PFABRIC_QUEUE 2
 #define PROB_DROP_QUEUE 4
+#define DCTCP_QUEUE 5
 
 /* Flow types */
 #define NORMAL_FLOW 1
-
 #define PFABRIC_FLOW 2
+#define VANILLA_TCP_FLOW 42
+#define DCTCP_FLOW 43
 #define CAPABILITY_FLOW 112
 #define MAGIC_FLOW 113
 #define FASTPASS_FLOW 114
-
-#define VANILLA_TCP_FLOW 42
 
 /* Host types */
 #define NORMAL_HOST 1
