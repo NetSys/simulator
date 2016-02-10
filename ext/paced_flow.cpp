@@ -26,6 +26,7 @@ void PacedFlow::send_pending_data() {
 void PacedFlow::receive(Packet* p) {
     if (p->type == ACK_PACKET) {
         //do nothing
+        delete p;
         return;
     }
     else {
@@ -34,6 +35,8 @@ void PacedFlow::receive(Packet* p) {
         PlainAck* a = new PlainAck(this, 0, 1500, this->dst, this->src);
         add_to_event_queue(new PacketQueuingEvent(get_current_time(), a, this->dst->queue));
     }
+
+    delete p;
 }
 
 uint32_t PacedFlow::get_priority(uint32_t seq) {
