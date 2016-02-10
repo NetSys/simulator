@@ -104,6 +104,7 @@ void run_scenario() {
 }
 
 extern void run_experiment(int argc, char** argv, uint32_t exp_type);
+extern void run_murphy_experiment(int argc, char** argv, uint32_t exp_time);
 
 int main (int argc, char ** argv) {
     time_t start_time;
@@ -117,6 +118,9 @@ int main (int argc, char ** argv) {
     switch (exp_type) {
         case DEFAULT_EXP:
             run_experiment(argc, argv, exp_type);
+            break;
+        case MURPHY_EXP:
+            run_murphy_experiment(argc, argv, exp_type);
             break;
         default:
             assert(false);

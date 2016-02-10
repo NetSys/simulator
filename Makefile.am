@@ -27,9 +27,12 @@ simulator_SOURCES = 				 		 	 \
 					ext/tcpflow.cpp				 \
 					ext/dctcpQueue.cpp			 \
 					ext/dctcpFlow.cpp			 \
+					ext/paced_flow.cpp			 \
+					ext/murphy_topology.cpp		 \
 					run/params.cpp 		 	 	 \
 					run/stats.cpp 			   	 \
 					run/flow_generator.cpp       \
+					run/murphy_experiment.cpp    \
 					run/experiment.cpp 
 
 simulator_CXXFLAGS = -g -O3 -gdwarf-2 -Wall -std=c++0x 

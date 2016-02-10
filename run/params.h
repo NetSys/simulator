@@ -94,6 +94,7 @@ void read_experiment_parameters(std::string conf_filename, uint32_t exp_type);
 
 /* General main function */
 #define DEFAULT_EXP 1
+#define MURPHY_EXP 2
 
 #define INFINITESIMAL_TIME 0.000000000001
 
