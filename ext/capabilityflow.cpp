@@ -88,6 +88,10 @@ void CapabilityFlow::receive(Packet *p)
 
     if(p->type == NORMAL_PACKET)
     {
+        if (this->first_byte_receive_time == -1) {
+            this->first_byte_receive_time = get_current_time();
+        }
+
         if(!rts_received && !params.cut_through)
             std::cout << get_current_time() << " flow " << this->id << " hasn't receive rts\n";
         assert(this->rts_received || params.cut_through);
@@ -152,7 +156,7 @@ void CapabilityFlow::receive(Packet *p)
 
         this->rts_received = true;
         set_capability_count();
-        ((CapabilityHost*)(this->dst))->hold_on += this->init_capa_size();
+        ((CapabilityHost*)(this->dst))->hold_on = this->init_capa_size();
         ((CapabilityHost*)(this->dst))->active_receiving_flows.push(this);
 
         if( ((CapabilityHost*)(this->dst))->capa_proc_evt &&

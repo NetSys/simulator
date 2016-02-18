@@ -58,9 +58,9 @@ void validate_flow(Flow* f){
         std::cout << "Flow " << f->id << " has slowdown " << slowdown << "\n";
         //assert(false);
     }
-    if(f->first_byte_send_time < 0 || f->first_byte_send_time < f->start_time - INFINITESIMAL_TIME)
-        std::cout << "Flow " << f->id << " first_byte_send_time: " << f->first_byte_send_time << " start time:"
-            << f->start_time << "\n";
+    //if(f->first_byte_send_time < 0 || f->first_byte_send_time < f->start_time - INFINITESIMAL_TIME)
+    //    std::cout << "Flow " << f->id << " first_byte_send_time: " << f->first_byte_send_time << " start time:"
+    //        << f->start_time << "\n";
 }
 
 void debug_flow_stats(std::deque<Flow *> flows){

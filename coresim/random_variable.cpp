@@ -73,7 +73,7 @@ double EmpiricalRandomVariable::value() {
 double EmpiricalRandomVariable::interpolate(double x, double x1, double y1,
                                             double x2, double y2) {
   double value = y1 + (x - x1) * (y2 - y1) / (x2 - x1);
-  return ceil(value);
+  return value;
 }
 
 int EmpiricalRandomVariable::lookup(double u) {

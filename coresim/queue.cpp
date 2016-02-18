@@ -28,7 +28,19 @@ Queue::Queue(uint32_t id, double rate, uint32_t limit_bytes, int location) {
     //this->packet_propagation_event = NULL;
     this->location = location;
 
-    this->propagation_delay = params.propagation_delay;
+    if (location == 0) {
+        this->propagation_delay = 10e-9;
+    }
+    else if (location == 1 || location == 2) {
+        this->propagation_delay = 400e-9;
+    }
+    else if (location == 3) {
+        this->propagation_delay = 210e-9;
+    }
+    else {
+        assert(false);
+    }
+    //this->propagation_delay = params.propagation_delay;
     this->p_arrivals = 0; this->p_departures = 0;
     this->b_arrivals = 0; this->b_departures = 0;
 

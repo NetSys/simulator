@@ -99,8 +99,9 @@ void CapabilityHost::start_capability_flow(CapabilityFlow* f) {
         std::cout 
             << get_current_time() 
             << " flow " << f->id 
-            << " starts at" << this->id
-            << " curr q size" << this->queue->bytes_in_queue <<"\n";
+            << " src " << this->id
+            << " curr q size " << this->queue->bytes_in_queue 
+            << " num flows " << this->active_receiving_flows.size() <<"\n";
 
     this->active_sending_flows.push(f);
     f->send_rts_pkt();
@@ -349,7 +350,7 @@ void CapabilityHost::send_capability(){
 
     if(capability_sent)// pkt sent
     {
-        this->schedule_capa_proc_evt(params.get_full_pkt_tran_delay(1500 + 40), false);
+        this->schedule_capa_proc_evt(params.get_full_pkt_tran_delay(1500/* + 40*/), false);
     }
     else if(closet_timeout < 999999) //has unsend flow, but its within timeout
     {

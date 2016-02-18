@@ -321,6 +321,7 @@ void FlowFinishedEvent::process_event() {
             << flow->total_pkt_sent << "/" << (flow->size/flow->mss) << "//" << flow->received_count << " "
             << flow->data_pkt_drop << "/" << flow->ack_pkt_drop << "/" << flow->pkt_drop << " "
             << 1000000 * (flow->first_byte_send_time - flow->start_time) << " "
+            << 1000000 * (flow->first_byte_receive_time - flow->start_time) << " "
             << std::endl;
         std::cout << std::setprecision(9) << std::fixed;
     }

@@ -85,7 +85,7 @@ class DCExpParams {
 
 #define CAPABILITY_MEASURE_WASTE false
 #define CAPABILITY_NOTIFY_BLOCKING false
-#define CAPABILITY_HOLD false
+#define CAPABILITY_HOLD true
 
 //#define FASTPASS_EPOCH_TIME 0.000010
 #define FASTPASS_EPOCH_PKTS 8
