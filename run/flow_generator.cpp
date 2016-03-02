@@ -61,7 +61,7 @@ void PoissonFlowGenerator::make_flows() {
 
     double lambda = params.bandwidth * params.load / (params.mean_flow_size * 8.0 / 1460 * 1500);
     double lambda_per_host = lambda / (topo->hosts.size() - 1);
-    std::cout << "Lambda: " << lambda_per_host << std::endl;
+    //std::cout << "Lambda: " << lambda_per_host << std::endl;
 
 
     ExponentialRandomVariable *nv_intarr;
@@ -362,7 +362,7 @@ void PermutationTM::make_flows() {
     params.mean_flow_size = nv_bytes->mean_flow_size;
 
     double lambda = params.bandwidth * params.load / (params.mean_flow_size * 8.0 / 1460 * 1500);
-    std::cout << "Lambda: " << lambda << std::endl;
+    //std::cout << "Lambda: " << lambda << std::endl;
 
     auto *nv_intarr = new ExponentialRandomVariable(1.0 / lambda);
 

@@ -87,7 +87,6 @@ void run_scenario() {
             continue;
         }
         ev->process_event();
-        delete ev;
 
         if(last_evt_type == ev->type && last_evt_type != 9)
             same_evt_count++;
@@ -95,6 +94,8 @@ void run_scenario() {
             same_evt_count = 0;
 
         last_evt_type = ev->type;
+        
+        delete ev;
 
         if(same_evt_count > 100000){
             std::cout << "Ended event dead loop. Type:" << last_evt_type << "\n";
@@ -115,6 +116,7 @@ int main (int argc, char ** argv) {
 
     uint32_t exp_type = atoi(argv[1]);
     switch (exp_type) {
+        case GEN_ONLY:
         case DEFAULT_EXP:
             run_experiment(argc, argv, exp_type);
             break;

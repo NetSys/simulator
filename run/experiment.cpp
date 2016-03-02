@@ -227,7 +227,16 @@ void run_experiment(int argc, char **argv, uint32_t exp_type) {
 
     for (uint32_t i = 0; i < flows_sorted.size(); i++) {
         Flow* f = flows_sorted[i];
-        flow_arrivals.push_back(new FlowArrivalEvent(f->start_time, f));
+        if (exp_type == GEN_ONLY) {
+            std::cout << f->id << " " << f->size << " " << f->src->id << " " << f->dst->id << " " << 1e6*f->start_time << "\n";
+        }
+        else {
+            flow_arrivals.push_back(new FlowArrivalEvent(f->start_time, f));
+        }
+    }
+
+    if (exp_type == GEN_ONLY) {
+        return;
     }
 
     add_to_event_queue(new LoggingEvent((flows_sorted.front())->start_time));
@@ -387,6 +396,10 @@ void run_experiment(int argc, char **argv, uint32_t exp_type) {
     //debug_flow_stats(flows_to_schedule);
 
     std::cout << params.param_str << "\n";
+
+    //cleanup
+    
+    delete fg;
 }
 
 // TODO new experiment types (continuous flow gen) not yet implemented
