@@ -19,6 +19,10 @@
 #include "dctcpQueue.h"
 #include "dctcpFlow.h"
 
+#include "ideal.h"
+
+IdealArbiter* ideal_arbiter = NULL;
+
 /* Factory method to return appropriate queue */
 Queue* Factory::get_queue(
         uint32_t id, 
@@ -87,6 +91,9 @@ Flow* Factory::get_flow(
         case DCTCP_FLOW:
             return new DctcpFlow(id, start_time, size, src, dst);
             break;
+        case IDEAL_FLOW:
+            return new IdealFlow(id, start_time, size, src, dst);
+            break;
     }
     assert(false);
     return NULL;
@@ -113,6 +120,13 @@ Host* Factory::get_host(
             break;
         case FASTPASS_HOST:
             return new FastpassHost(id, rate, queue_type);
+            break;
+        case IDEAL_HOST:
+            if (ideal_arbiter == NULL) {
+                ideal_arbiter = new IdealArbiter();
+            }
+
+            return new IdealHost(id, rate, queue_type);
             break;
     }
     std::cerr << host_type << " unknown\n";
