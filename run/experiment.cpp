@@ -162,16 +162,8 @@ void run_experiment(int argc, char **argv, uint32_t exp_type) {
     params.num_core_switches = 4;
     
     if (params.flow_type == FASTPASS_FLOW) {
-        if (params.cut_through == 1) {
-            topology = new CutThroughFastpassTopology(params.num_hosts, params.num_agg_switches, params.num_core_switches, params.bandwidth, params.queue_type);
-        }
-        else {
-            topology = new FastpassTopology(params.num_hosts, params.num_agg_switches, params.num_core_switches, params.bandwidth, params.queue_type);
-        }
+        topology = new FastpassTopology(params.num_hosts, params.num_agg_switches, params.num_core_switches, params.bandwidth, params.queue_type);
     }
-    else if (params.cut_through == 1) {
-        topology = new CutThroughTopology(params.num_hosts, params.num_agg_switches, params.num_core_switches, params.bandwidth, params.queue_type);
-    } 
     else if (params.big_switch) {
         topology = new BigSwitchTopology(params.num_hosts, params.bandwidth, params.queue_type);
     } 
@@ -277,7 +269,7 @@ void run_experiment(int argc, char **argv, uint32_t exp_type) {
     for (uint32_t i = 0; i < flows_sorted.size(); i++) {
         Flow *f = flows_to_schedule[i];
         validate_flow(f);
-        if(!f->finished)
+        if(!f->finished) {
             std::cout 
                 << "unfinished flow " 
                 << "size:" << f->size 
@@ -287,6 +279,7 @@ void run_experiment(int argc, char **argv, uint32_t exp_type) {
                 << " src:" << f->src->id 
                 << " dst:" << f->dst->id 
                 << "\n";
+        }
 
         double slow = 1000000.0 * f->flow_completion_time / topology->get_oracle_fct(f);
         int meet_deadline = f->deadline > f->finish_time?1:0;

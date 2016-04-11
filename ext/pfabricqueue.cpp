@@ -1,8 +1,10 @@
+#include "pfabricqueue.h"
+#include "../run/params.h"
+
+#include <iostream>
 #include <limits.h>
 
-#include "pfabricqueue.h"
 
-#include "../run/params.h"
 
 extern double get_current_time();
 extern void add_to_event_queue(Event *ev);
@@ -66,6 +68,7 @@ Packet* PFabricQueue::deque() {
         b_departures += p->size;
 
         p->total_queuing_delay += get_current_time() - p->last_enque_time;
+
         if(p->type ==  NORMAL_PACKET){
             if(p->flow->first_byte_send_time < 0)
                 p->flow->first_byte_send_time = get_current_time();

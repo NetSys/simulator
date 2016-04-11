@@ -116,29 +116,49 @@ Queue *PFabricTopology::get_next_hop(Packet *p, Queue *q) {
 
 
 double PFabricTopology::get_oracle_fct(Flow *f) {
-    assert(false);
     int num_hops = 4;
     if (f->src->id/16 == f->dst->id/16) {
         num_hops = 2;
     }
-    double propagation_delay = 0; //2 * 1000000.0 * num_hops * f->src->queue->propagation_delay; //us
-    if (num_hops == 2) {
-        propagation_delay = 0.440;
+    double propagation_delay;
+    if (params.ddc != 0) { 
+        if (num_hops == 2) {
+            propagation_delay = 0.440;
+        }
+        if (num_hops == 4) {
+            propagation_delay = 2.040;
+        }
     }
-    if (num_hops == 4) {
-        propagation_delay = 2.040;
+    else {
+        propagation_delay = 2 * 1000000.0 * num_hops * f->src->queue->propagation_delay; //us
     }
-
+    
     uint32_t np = ceil(f->size / params.mss); // TODO: Must be a multiple of 1460
     double bandwidth = f->src->queue->rate / 1000000.0; // For us
-    double transmission_delay = 
-        (
-            (np + 1) * (params.mss + params.hdr_size) 
-            + 2.0 * params.hdr_size // ACK has to travel two hops
-        ) * 8.0 / bandwidth;
-    if (num_hops == 4) {
-        //1 packet and 1 ack
-        transmission_delay += 2 * (params.mss + 2*params.hdr_size) * 8.0 / (4 * bandwidth);  //TODO: 4 * bw is not right.
+    double transmission_delay;
+    if (params.cut_through) {
+        transmission_delay = 
+            (
+                np * (params.mss + params.hdr_size)
+                + 1 * params.hdr_size
+                + 2.0 * params.hdr_size // ACK has to travel two hops
+            ) * 8.0 / bandwidth;
+        if (num_hops == 4) {
+            //1 packet and 1 ack
+            transmission_delay += 2 * (2*params.hdr_size) * 8.0 / (4 * bandwidth);
+        }
+        //std::cout << "pd: " << propagation_delay << " td: " << transmission_delay << std::endl;
+    }
+    else {
+        transmission_delay = 
+            (
+                (np + 1) * (params.mss + params.hdr_size) 
+                + 2.0 * params.hdr_size // ACK has to travel two hops
+            ) * 8.0 / bandwidth;
+        if (num_hops == 4) {
+            //1 packet and 1 ack
+            transmission_delay += 2 * (params.mss + 2*params.hdr_size) * 8.0 / (4 * bandwidth);  //TODO: 4 * bw is not right.
+        }
     }
     return (propagation_delay + transmission_delay); //us
 }
@@ -162,6 +182,8 @@ BigSwitchTopology::BigSwitchTopology(
 
     the_switch = new CoreSwitch(0, num_hosts, c1, queue_type);
     this->switches.push_back(the_switch);
+
+    assert(this->switches.size() == 1);
 
     //Connect host queues
     for (uint32_t i = 0; i < num_hosts; i++) {
@@ -191,50 +213,20 @@ double BigSwitchTopology::get_oracle_fct(Flow *f) {
 
     uint32_t np = ceil(f->size / params.mss); // TODO: Must be a multiple of 1460
     double bandwidth = f->src->queue->rate / 1000000.0; // For us
-    double transmission_delay = ((np + 1) * (params.mss + params.hdr_size) 
-            + 2.0 * params.hdr_size) // ACK has to travel two hops
-        * 8.0 / bandwidth;
-
-    return (propagation_delay + transmission_delay); //us
-}
-
-
-CutThroughTopology::CutThroughTopology(
-        uint32_t num_hosts,
-        uint32_t num_agg_switches, 
-        uint32_t num_core_switches, 
-        double bandwidth,
-        uint32_t queue_type
-        ) : PFabricTopology (num_hosts, num_agg_switches, num_core_switches, bandwidth, queue_type) {}
-
-/* Cut Through */
-double CutThroughTopology::get_oracle_fct(Flow *f) {
-    int num_hops = 4;
-    if (f->src->id/16 == f->dst->id/16) {
-        num_hops = 2;
+    double transmission_delay;
+    if (params.cut_through) {
+        transmission_delay = 
+            (
+                np * (params.mss + params.hdr_size)
+                + 1 * params.hdr_size
+                + 2.0 * params.hdr_size // ACK has to travel two hops
+            ) * 8.0 / bandwidth;
     }
-
-    double propagation_delay = 0; //2 * 1000000.0 * num_hops * f->src->queue->propagation_delay; //us
-    if (num_hops == 2) {
-        propagation_delay = 0.440;
+    else {
+        transmission_delay = ((np + 1) * (params.mss + params.hdr_size) 
+                + 2.0 * params.hdr_size) // ACK has to travel two hops
+            * 8.0 / bandwidth;
     }
-    if (num_hops == 4) {
-        propagation_delay = 2.040;
-    }
-
-    uint32_t np = ceil(f->size / params.mss); // TODO: Must be a multiple of 1460
-    double bandwidth = f->src->queue->rate / 1000000.0; // For us
-    double transmission_delay = 
-        (
-            np * (params.mss + params.hdr_size)
-            + 1 * params.hdr_size
-            + 2.0 * params.hdr_size // ACK has to travel two hops
-        ) * 8.0 / bandwidth;
-    if (num_hops == 4) {
-        //1 packet and 1 ack
-        transmission_delay += 2 * (2*params.hdr_size) * 8.0 / (4 * bandwidth);
-    }
-    //std::cout << "pd: " << propagation_delay << " td: " << transmission_delay << std::endl;
     return (propagation_delay + transmission_delay); //us
 }
 

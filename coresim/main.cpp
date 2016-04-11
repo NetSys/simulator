@@ -95,12 +95,12 @@ void run_scenario() {
 
         last_evt_type = ev->type;
         
-        delete ev;
-
         if(same_evt_count > 100000){
             std::cout << "Ended event dead loop. Type:" << last_evt_type << "\n";
             break;
         }
+
+        delete ev;
     }
 }
 

@@ -55,20 +55,6 @@ class BigSwitchTopology : public Topology {
         virtual double get_oracle_fct(Flow* f);
 
         CoreSwitch* the_switch;
-
-};
-
-class CutThroughTopology : virtual public PFabricTopology {
-    public:
-        CutThroughTopology(
-                uint32_t num_hosts, 
-                uint32_t num_agg_switches,
-                uint32_t num_core_switches, 
-                double bandwidth, 
-                uint32_t queue_type
-                );
-
-        virtual double get_oracle_fct(Flow* f);
 };
 
 #endif
