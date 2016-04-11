@@ -8,7 +8,7 @@
 
 #include "../run/params.h"
 
-extern double get_current_time(); // TODOm
+extern double get_current_time(); 
 extern void add_to_event_queue(Event *);
 extern int get_event_queue_size();
 extern DCExpParams params;

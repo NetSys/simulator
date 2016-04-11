@@ -3,16 +3,16 @@
 
 extern double get_current_time();
 
-bool debug_mode = false;
+bool debug_mode = true;
 bool print_flow = true;
 double debug_start_time = 0;
 
 bool debug_all_flows = false;
-std::set<uint32_t> flows_to_debug_set = {13489};
+std::set<uint32_t> flows_to_debug_set = {};
 bool debug_all_queues = false;
 std::set<uint32_t> queues_to_debug_set = {};
 bool debug_all_hosts = false;
-std::set<uint32_t> hosts_to_debug_set = {50};
+std::set<uint32_t> hosts_to_debug_set = {};
 
 bool debug_flow(uint32_t fid){
     return false;

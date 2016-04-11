@@ -166,22 +166,3 @@ Queue* FastpassTopology::get_next_hop(Packet* p, Queue* q) {
     assert(false);
 }
 
-
-CutThroughFastpassTopology::CutThroughFastpassTopology(
-        uint32_t num_hosts,
-        uint32_t num_agg_switches,
-        uint32_t num_core_switches,
-        double bandwidth,
-        uint32_t queue_type
-        ) : PFabricTopology(num_hosts, num_agg_switches, num_core_switches, bandwidth, queue_type),
-    CutThroughTopology(num_hosts, num_agg_switches, num_core_switches, bandwidth, queue_type), 
-    FastpassTopology(num_hosts, num_agg_switches, num_core_switches, bandwidth, queue_type)  {}
-
-    Queue* CutThroughFastpassTopology::get_next_hop(Packet* p, Queue* q) {
-        return FastpassTopology::get_next_hop(p, q);
-    }
-
-double CutThroughFastpassTopology::get_oracle_fct(Flow* f) {
-    return CutThroughTopology::get_oracle_fct(f);
-}
-

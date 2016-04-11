@@ -280,6 +280,8 @@ void LoggingEvent::process_event() {
             }
         }
     }
+
+    /*
     std::cout << current_time
         << " MaxPacketOutstanding " << max_outstanding_packets
         << " NumPacketOutstanding " << num_outstanding_packets
@@ -289,6 +291,7 @@ void LoggingEvent::process_event() {
     if (!finished_simulation && ttl > get_current_time()) {
         add_to_event_queue(new LoggingEvent(current_time + 10, ttl));
     }
+    */
 }
 
 
@@ -321,7 +324,6 @@ void FlowFinishedEvent::process_event() {
             << flow->total_pkt_sent << "/" << (flow->size/flow->mss) << "//" << flow->received_count << " "
             << flow->data_pkt_drop << "/" << flow->ack_pkt_drop << "/" << flow->pkt_drop << " "
             << 1000000 * (flow->first_byte_send_time - flow->start_time) << " "
-            << 1000000 * (flow->first_byte_receive_time - flow->start_time) << " "
             << std::endl;
         std::cout << std::setprecision(9) << std::fixed;
     }

@@ -19,6 +19,7 @@
 #define CAPABILITY_FLOW 112
 #define MAGIC_FLOW 113
 #define FASTPASS_FLOW 114
+#define IDEAL_FLOW 120
 
 /* Host types */
 #define NORMAL_HOST 1
@@ -27,6 +28,7 @@
 #define MAGIC_HOST 13
 #define FASTPASS_HOST 14
 #define FASTPASS_ARBITER 10
+#define IDEAL_HOST 20
 
 class Factory {
     public:

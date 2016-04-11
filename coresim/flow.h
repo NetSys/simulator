@@ -16,7 +16,6 @@ class Flow {
 
         ~Flow(); // Destructor
 
-        // TODO implement
         virtual void start_flow();
         virtual void send_pending_data();
         virtual Packet *send(uint32_t seq);
@@ -24,7 +23,7 @@ class Flow {
         virtual void receive_ack(uint32_t ack, std::vector<uint32_t> sack_list);
         void receive_data_pkt(Packet* p);
         virtual void receive(Packet *p);
-
+        
         // Only sets the timeout if needed; i.e., flow hasn't finished
         virtual void set_timeout(double time);
         virtual void handle_timeout();
@@ -40,7 +39,13 @@ class Flow {
         uint32_t size;
         Host *src;
         Host *dst;
+        uint32_t cwnd_mss;
+        uint32_t max_cwnd;
+        double retx_timeout;
+        uint32_t mss;
+        uint32_t hdr_size;
 
+        // Sender variables
         uint32_t next_seq_no;
         uint32_t last_unacked_seq;
         RetxTimeoutEvent *retx_event;
@@ -53,11 +58,7 @@ class Flow {
         uint32_t received_bytes;
         uint32_t recv_till;
         uint32_t max_seq_no_recv;
-        uint32_t cwnd_mss;
-        uint32_t max_cwnd;
-        double retx_timeout;
-        uint32_t mss;
-        uint32_t hdr_size;
+
         uint32_t total_pkt_sent;
         int size_in_pkt;
         int pkt_drop;
