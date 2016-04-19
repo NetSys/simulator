@@ -118,6 +118,7 @@ void FlowReader::make_flows() {
         }
         
         size = (uint32_t) (params.mss * size);
+        assert(size > 0);
 
         std::cout << "Flow " << id << " " << start_time << " " << size << " " << s << " " << d << "\n";
         flows_to_schedule.push_back(
