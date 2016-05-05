@@ -12,6 +12,7 @@
 
 extern double get_current_time(); // TODOm
 extern void add_to_event_queue(Event* ev);
+extern uint32_t dead_packets;
 extern DCExpParams params;
 
 uint32_t Queue::instance_count = 0;
@@ -90,6 +91,10 @@ void Queue::drop(Packet *packet) {
     if(packet->type == ACK_PACKET)
         packet->flow->ack_pkt_drop++;
 
+    if (location != 0 && packet->type == NORMAL_PACKET) {
+        dead_packets += 1;
+    }
+
     if(debug_flow(packet->flow->id))
         std::cout << get_current_time() << " pkt drop. flow:" << packet->flow->id
             << " type:" << packet->type << " seq:" << packet->seq_no
@@ -102,7 +107,7 @@ double Queue::get_transmission_delay(uint32_t size) {
     return size * 8.0 / rate;
 }
 
-void Queue::preempt_current_transmission(){
+void Queue::preempt_current_transmission() {
     if(params.preemptive_queue && busy){
         this->queue_proc_event->cancelled = true;
         assert(this->packet_transmitting);

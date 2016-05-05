@@ -38,6 +38,15 @@ uint32_t arrival_packets_count = 0;
 uint32_t total_finished_flows = 0;
 uint32_t duplicated_packets_received = 0;
 
+uint32_t injected_packets = 0;
+uint32_t duplicated_packets = 0;
+uint32_t dead_packets = 0;
+uint32_t completed_packets = 0;
+uint32_t backlog3 = 0;
+uint32_t backlog4 = 0;
+uint32_t total_completed_packets = 0;
+uint32_t sent_packets = 0;
+
 extern DCExpParams params;
 double start_time = -1;
 

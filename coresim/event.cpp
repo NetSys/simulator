@@ -34,6 +34,16 @@ extern uint32_t arrival_packets_at_100;
 extern uint32_t arrival_packets_count;
 extern uint32_t total_finished_flows;
 
+extern uint32_t backlog3;
+extern uint32_t backlog4;
+extern uint32_t duplicated_packets_received;
+extern uint32_t duplicated_packets;
+extern uint32_t injected_packets;
+extern uint32_t completed_packets;
+extern uint32_t total_completed_packets;
+extern uint32_t dead_packets;
+extern uint32_t sent_packets;
+
 extern EmpiricalRandomVariable *nv_bytes;
 
 extern double get_current_time();
@@ -71,7 +81,7 @@ FlowCreationForInitializationEvent::~FlowCreationForInitializationEvent() {}
 
 void FlowCreationForInitializationEvent::process_event() {
     uint32_t id = flows_to_schedule.size();
-    uint64_t nvVal = nv_bytes->value();
+    uint64_t nvVal = (nv_bytes->value() + 0.5); // truncate(val + 0.5) equivalent to round to nearest int
     if (nvVal > 2500000) {
         std::cout << "Giant Flow! event.cpp::FlowCreation:" << 1000000.0 * time << " Generating new flow " << id << " of size " << (nvVal*1460) << " between " << src->id << " " << dst->id << "\n";
         nvVal = 2500000;
@@ -194,6 +204,10 @@ PacketArrivalEvent::~PacketArrivalEvent() {
 }
 
 void PacketArrivalEvent::process_event() {
+    if (packet->type == NORMAL_PACKET) {
+        completed_packets++;
+    }
+
     packet->flow->receive(packet);
 }
 
@@ -281,6 +295,46 @@ void LoggingEvent::process_event() {
         }
     }
 
+    uint32_t theoretical_injection_rate = params.bandwidth * params.num_hosts * params.load * 0.01 / ((params.mss + params.hdr_size) * 8);
+   
+    uint32_t totalSentFromHosts = 0;
+    for (auto h = (topology->hosts).begin(); h != (topology->hosts).end(); h++) {
+        totalSentFromHosts += (*h)->queue->p_departures;
+    }
+    uint32_t sentInTimeslot = (totalSentFromHosts - sent_packets) / 2;
+    uint32_t injectedInTimeslot = arrival_packets_count - injected_packets;
+    uint32_t duplicatedInTimeslot = duplicated_packets_received - duplicated_packets;
+    backlog3 += (injectedInTimeslot - (completed_packets - duplicatedInTimeslot));
+    backlog4 += (theoretical_injection_rate - (completed_packets - duplicatedInTimeslot));
+
+    total_completed_packets += completed_packets;
+    sent_packets = totalSentFromHosts;
+    injected_packets = arrival_packets_count;
+    duplicated_packets = duplicated_packets_received;
+
+    std::cout << current_time * 1e6 
+        << " dead pkts: " << dead_packets 
+        << " completed pkts: " << completed_packets 
+        << " sent pkts: " << sentInTimeslot
+        << " total received pkts: " << total_completed_packets 
+        << " total duplicated pkts: " << duplicated_packets_received
+        << " total useful pkts: " << total_completed_packets - duplicated_packets_received
+        << " backlog1: " << num_outstanding_packets
+        //<< " backlog2: " << (arrival_packets_count) - (total_completed_packets - duplicated_packets_received)
+        //<< " backlog3: " << backlog3
+        << " est backlog: " << backlog4
+        << " src util: " << ((double) sentInTimeslot) / theoretical_injection_rate
+        << " goodput: " << ((double) completed_packets - duplicatedInTimeslot) / theoretical_injection_rate
+        << " total injected pkts: " << arrival_packets_count 
+        << "\n";
+    
+    dead_packets = 0;
+    completed_packets = 0;
+    
+    if (!finished_simulation && ttl > get_current_time()) {
+        add_to_event_queue(new LoggingEvent(current_time + 0.01, ttl));
+    }
+
     /*
     std::cout << current_time
         << " MaxPacketOutstanding " << max_outstanding_packets
@@ -308,6 +362,11 @@ void FlowFinishedEvent::process_event() {
     this->flow->finish_time = get_current_time();
     this->flow->flow_completion_time = this->flow->finish_time - this->flow->start_time;
     total_finished_flows++;
+    auto slowdown = 1000000 * flow->flow_completion_time / topology->get_oracle_fct(flow);
+    if (slowdown < 1.0 && slowdown > 0.9999) {
+        slowdown = 1.0;
+    }
+    assert(slowdown >= 1.0);
 
     if (print_flow_result()) {
         std::cout << std::setprecision(4) << std::fixed ;
@@ -320,7 +379,7 @@ void FlowFinishedEvent::process_event() {
             << 1000000 * flow->finish_time << " "
             << 1000000.0 * flow->flow_completion_time << " "
             << topology->get_oracle_fct(flow) << " "
-            << 1000000 * flow->flow_completion_time / topology->get_oracle_fct(flow) << " "
+            << slowdown << " "
             << flow->total_pkt_sent << "/" << (flow->size/flow->mss) << "//" << flow->received_count << " "
             << flow->data_pkt_drop << "/" << flow->ack_pkt_drop << "/" << flow->pkt_drop << " "
             << 1000000 * (flow->first_byte_send_time - flow->start_time) << " "

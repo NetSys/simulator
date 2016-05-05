@@ -25,7 +25,8 @@ UniformRandomVariable::UniformRandomVariable(double min, double max) {
 }
 
 double UniformRandomVariable::value() { // never return 0
-  double unif0_1 = (1.0 * rand() + 1.0) / (RAND_MAX* 1.0 + 1.0);
+  //double unif0_1 = (1.0 * rand() + 1.0) / (RAND_MAX* 1.0 + 1.0);
+  double unif0_1 = (1.0 * rand()) / (RAND_MAX * 1.0);
   return min_ + (max_ - min_) * unif0_1;
 }
 

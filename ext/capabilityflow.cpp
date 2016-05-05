@@ -37,6 +37,7 @@ CapabilityFlow::CapabilityFlow(uint32_t id, double start_time, uint32_t size, Ho
     this->notified_num_flow_at_sender = 1;
     this->last_capa_data_seq_num_sent = -1;
     this->received_until = 0;
+    this->received_count = 0;
 }
 
 

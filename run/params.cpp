@@ -14,6 +14,7 @@ void read_experiment_parameters(std::string conf_filename, uint32_t exp_type) {
     std::string key;
     params.interarrival_cdf = "none";
     params.permutation_tm = 0;
+    params.hdr_size = 40;
     while (std::getline(input, line)) {
         std::istringstream lineStream(line);
         if (line.empty()) {

@@ -189,12 +189,7 @@ void run_experiment(int argc, char **argv, uint32_t exp_type) {
         fg->make_flows();
     }
     else {
-        if (params.ddc) {
-            // TODO ddc flow gen not yet implemented, need to move to FlowGenerator
-            assert(false);
-            //generate_flows_to_schedule_fd_ddc(params.cdf_or_flow_trace, num_flows, topology);
-        }
-        else if (params.traffic_imbalance < 0.01) {
+        if (params.traffic_imbalance < 0.01) {
             fg = new PoissonFlowGenerator(num_flows, topology, params.cdf_or_flow_trace);
             fg->make_flows();
         }
