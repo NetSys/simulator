@@ -19,6 +19,9 @@
 #include "dctcpQueue.h"
 #include "dctcpFlow.h"
 
+#include "phost.h"
+#include "phostflow.h"
+
 #include "ideal.h"
 
 IdealArbiter* ideal_arbiter = NULL;
@@ -94,6 +97,9 @@ Flow* Factory::get_flow(
         case IDEAL_FLOW:
             return new IdealFlow(id, start_time, size, src, dst);
             break;
+        case PHOST_FLOW:
+            return new PHostFlow(id, start_time, size, src, dst);
+            break;
     }
     assert(false);
     return NULL;
@@ -120,6 +126,9 @@ Host* Factory::get_host(
             break;
         case FASTPASS_HOST:
             return new FastpassHost(id, rate, queue_type);
+            break;
+        case PHOST_HOST:
+            return new PHost(id, rate, queue_type);
             break;
         case IDEAL_HOST:
             if (ideal_arbiter == NULL) {

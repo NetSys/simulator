@@ -249,7 +249,7 @@ void CustomCDFFlowGenerator::make_flows() {
 
     for (uint32_t i = 0; i < num_hosts; i++) {
         if (params.ddc_type != 0 && i % 16 == 15) {
-            std::cout << i << " no flows\n";
+            //std::cout << i << " no flows\n";
             continue; // unused host, rack scale
         }
 
@@ -264,7 +264,7 @@ void CustomCDFFlowGenerator::make_flows() {
             dests = customCdfFlowGenerator_getDestinations_dcscale(num_hosts, i, params.num_host_types, clusters);
             
             if (dests == NULL) {
-                std::cout << i << " no flows\n";
+                //std::cout << i << " no flows\n";
                 continue; // unused host, dc scale
             }
             
@@ -298,11 +298,13 @@ void CustomCDFFlowGenerator::make_flows() {
             }
         }
 
+        /*
         std::cout << i << " " << sender_profile << " dests:";
         for (auto t = 0; t < params.num_host_types - 1; t++) {
             std::cout << " " << dests[t];
         }
         std::cout << std::endl;
+        */
 
         for (uint32_t j = 0; j < params.num_host_types - 2; j++) {
             EmpiricalRandomVariable* nv_bytes = sizeMatrix->at(params.num_host_types * sender_profile + j);

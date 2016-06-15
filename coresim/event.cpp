@@ -331,9 +331,9 @@ void LoggingEvent::process_event() {
     dead_packets = 0;
     completed_packets = 0;
     
-    if (!finished_simulation && ttl > get_current_time()) {
-        add_to_event_queue(new LoggingEvent(current_time + 0.01, ttl));
-    }
+    //if (!finished_simulation && ttl > get_current_time()) {
+    //    add_to_event_queue(new LoggingEvent(current_time + 0.01, ttl));
+    //}
 
     /*
     std::cout << current_time
