@@ -80,13 +80,20 @@ FlowCreationForInitializationEvent::FlowCreationForInitializationEvent(
 FlowCreationForInitializationEvent::~FlowCreationForInitializationEvent() {}
 
 void FlowCreationForInitializationEvent::process_event() {
+    uint32_t nvVal, size;
     uint32_t id = flows_to_schedule.size();
-    uint64_t nvVal = (nv_bytes->value() + 0.5); // truncate(val + 0.5) equivalent to round to nearest int
-    if (nvVal > 2500000) {
-        std::cout << "Giant Flow! event.cpp::FlowCreation:" << 1000000.0 * time << " Generating new flow " << id << " of size " << (nvVal*1460) << " between " << src->id << " " << dst->id << "\n";
-        nvVal = 2500000;
+    if (params.bytes_mode) {
+        nvVal = nv_bytes->value();
+        size = (uint32_t) nvVal;
+    } else {
+        nvVal = (nv_bytes->value() + 0.5); // truncate(val + 0.5) equivalent to round to nearest int
+        if (nvVal > 2500000) {
+            std::cout << "Giant Flow! event.cpp::FlowCreation:" << 1000000.0 * time << " Generating new flow " << id << " of size " << (nvVal*1460) << " between " << src->id << " " << dst->id << "\n";
+            nvVal = 2500000;
+        }
+        size = (uint32_t) nvVal * 1460;
     }
-    uint32_t size = (uint32_t) nvVal * 1460;
+
     if (size != 0) {
         flows_to_schedule.push_back(Factory::get_flow(id, time, size, src, dst, params.flow_type));
     }
@@ -277,75 +284,7 @@ LoggingEvent::~LoggingEvent() {
 
 void LoggingEvent::process_event() {
     double current_time = get_current_time();
-    bool finished_simulation = true;
-    uint32_t second_num_outstanding = 0;
-    uint32_t num_unfinished_flows = 0;
-    uint32_t started_flows = 0;
-    for (uint32_t i = 0; i < flows_to_schedule.size(); i++) {
-        Flow *f = flows_to_schedule[i];
-        if (finished_simulation && !f->finished) {
-            finished_simulation = false;
-        }
-        if (f->start_time < current_time) {
-            second_num_outstanding += (f->size - f->received_bytes);
-            started_flows ++;
-            if (!f->finished) {
-                num_unfinished_flows ++;
-            }
-        }
-    }
-
-    uint32_t theoretical_injection_rate = params.bandwidth * params.num_hosts * params.load * 0.01 / ((params.mss + params.hdr_size) * 8);
-   
-    uint32_t totalSentFromHosts = 0;
-    for (auto h = (topology->hosts).begin(); h != (topology->hosts).end(); h++) {
-        totalSentFromHosts += (*h)->queue->p_departures;
-    }
-    uint32_t sentInTimeslot = (totalSentFromHosts - sent_packets) / 2;
-    uint32_t injectedInTimeslot = arrival_packets_count - injected_packets;
-    uint32_t duplicatedInTimeslot = duplicated_packets_received - duplicated_packets;
-    backlog3 += (injectedInTimeslot - (completed_packets - duplicatedInTimeslot));
-    backlog4 += (theoretical_injection_rate - (completed_packets - duplicatedInTimeslot));
-
-    total_completed_packets += completed_packets;
-    sent_packets = totalSentFromHosts;
-    injected_packets = arrival_packets_count;
-    duplicated_packets = duplicated_packets_received;
-
-    std::cout << current_time * 1e6 
-        << " dead pkts: " << dead_packets 
-        << " completed pkts: " << completed_packets 
-        << " sent pkts: " << sentInTimeslot
-        << " total received pkts: " << total_completed_packets 
-        << " total duplicated pkts: " << duplicated_packets_received
-        << " total useful pkts: " << total_completed_packets - duplicated_packets_received
-        << " backlog1: " << num_outstanding_packets
-        //<< " backlog2: " << (arrival_packets_count) - (total_completed_packets - duplicated_packets_received)
-        //<< " backlog3: " << backlog3
-        << " est backlog: " << backlog4
-        << " src util: " << ((double) sentInTimeslot) / theoretical_injection_rate
-        << " goodput: " << ((double) completed_packets - duplicatedInTimeslot) / theoretical_injection_rate
-        << " total injected pkts: " << arrival_packets_count 
-        << "\n";
-    
-    dead_packets = 0;
-    completed_packets = 0;
-    
-    if (!finished_simulation && ttl > get_current_time()) {
-        add_to_event_queue(new LoggingEvent(current_time + 0.01, ttl));
-    }
-
-    /*
-    std::cout << current_time
-        << " MaxPacketOutstanding " << max_outstanding_packets
-        << " NumPacketOutstanding " << num_outstanding_packets
-        << " NumUnfinishedFlows " << num_unfinished_flows
-        << " StartedFlows " << started_flows << "\n";
-
-    if (!finished_simulation && ttl > get_current_time()) {
-        add_to_event_queue(new LoggingEvent(current_time + 10, ttl));
-    }
-    */
+    // can log simulator statistics here.
 }
 
 
@@ -365,6 +304,9 @@ void FlowFinishedEvent::process_event() {
     auto slowdown = 1000000 * flow->flow_completion_time / topology->get_oracle_fct(flow);
     if (slowdown < 1.0 && slowdown > 0.9999) {
         slowdown = 1.0;
+    }
+    if (slowdown < 1.0) {
+        std::cout << "bad slowdown " << 1e6 * flow->flow_completion_time << " " << topology->get_oracle_fct(flow) << " " << slowdown << "\n";
     }
     assert(slowdown >= 1.0);
 

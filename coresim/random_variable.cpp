@@ -93,6 +93,7 @@ int EmpiricalRandomVariable::lookup(double u) {
 }
 
 int EmpiricalRandomVariable::loadCDF(std::string filename) {
+  assert(false);
   std::string line;
   std::ifstream myfile(filename);
   assert(myfile.good());
@@ -118,6 +119,45 @@ int EmpiricalRandomVariable::loadCDF(std::string filename) {
   this->mean_flow_size = w_sum * 1460.0;
   //std::cout << "Mean flow size derived from CDF file:" << this->mean_flow_size << " smooth = " << this->smooth << "\n";
   //std::cout << "Number of lines in text file: " << numEntry_ << "\n";
+  if (myfile.is_open()) {
+    myfile.close();
+  }
+  return numEntry_;
+}
+
+
+EmpiricalBytesRandomVariable::EmpiricalBytesRandomVariable(std::string filename, bool smooth) : EmpiricalRandomVariable("", smooth) {
+  if(filename != "")
+      loadCDF(filename);
+}
+
+int EmpiricalBytesRandomVariable::loadCDF(std::string filename) {
+  std::string line;
+  std::ifstream myfile(filename);
+  assert(myfile.good());
+  numEntry_ = 0;
+  double prev_cd = 0;
+  int prev_sz = 1;
+  double w_sum = 0;
+  this->sizeWithHeader = 0.0;
+  while (std::getline(myfile, line)) {
+    std::istringstream is(line);
+    is >> table_[numEntry_].val_;
+    is >> table_[numEntry_].cdf_;
+    is >> table_[numEntry_].cdf_;
+
+    double freq = table_[numEntry_].cdf_ - prev_cd;
+    double flow_sz = this->smooth?(table_[numEntry_].val_ + prev_sz)/2.0:table_[numEntry_].val_;
+    assert(freq >= 0);
+    double num_pkts = std::ceil(flow_sz / 1460);
+    double tot = 40 * num_pkts + flow_sz;
+    sizeWithHeader += freq * tot;
+    w_sum += freq * flow_sz;
+    prev_cd = table_[numEntry_].cdf_;
+    prev_sz = table_[numEntry_].val_;
+    numEntry_ ++;
+  }
+  this->mean_flow_size = w_sum;
   if (myfile.is_open()) {
     myfile.close();
   }

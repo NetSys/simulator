@@ -51,6 +51,7 @@ void FlowGenerator::make_flows() {
 PoissonFlowGenerator::PoissonFlowGenerator(uint32_t num_flows, Topology *topo, std::string filename) : FlowGenerator(num_flows, topo, filename) {};
     
 void PoissonFlowGenerator::make_flows() {
+	assert(false);
     EmpiricalRandomVariable *nv_bytes;
     if (params.smooth_cdf)
         nv_bytes = new EmpiricalRandomVariable(filename);
@@ -69,6 +70,49 @@ void PoissonFlowGenerator::make_flows() {
         nv_intarr = new ExponentialRandomVariable(0.0000001);
     else
         nv_intarr = new ExponentialRandomVariable(1.0 / lambda_per_host);
+
+    //* [expr ($link_rate*$load*1000000000)/($meanFlowSize*8.0/1460*1500)]
+    for (uint32_t i = 0; i < topo->hosts.size(); i++) {
+        for (uint32_t j = 0; j < topo->hosts.size(); j++) {
+            if (i != j) {
+                double first_flow_time = 1.0 + nv_intarr->value();
+                add_to_event_queue(
+                    new FlowCreationForInitializationEvent(
+                        first_flow_time,
+                        topo->hosts[i], 
+                        topo->hosts[j],
+                        nv_bytes, 
+                        nv_intarr
+                    )
+                );
+            }
+        }
+    }
+
+    while (event_queue.size() > 0) {
+        Event *ev = event_queue.top();
+        event_queue.pop();
+        current_time = ev->time;
+        if (flows_to_schedule.size() < num_flows) {
+            ev->process_event();
+        }
+        delete ev;
+    }
+    current_time = 0;
+}
+
+PoissonFlowBytesGenerator::PoissonFlowBytesGenerator(uint32_t num_flows, Topology *topo, std::string filename) : FlowGenerator(num_flows, topo, filename) {};
+    
+void PoissonFlowBytesGenerator::make_flows() {
+    EmpiricalBytesRandomVariable *nv_bytes;
+    nv_bytes = new EmpiricalBytesRandomVariable(filename);
+
+    params.mean_flow_size = nv_bytes->mean_flow_size;
+
+    double lambda = params.bandwidth * params.load / (nv_bytes->sizeWithHeader * 8.0);
+    double lambda_per_host = lambda / (topo->hosts.size() - 1);
+
+    ExponentialRandomVariable *nv_intarr = new ExponentialRandomVariable(1.0 / lambda_per_host);
 
     //* [expr ($link_rate*$load*1000000000)/($meanFlowSize*8.0/1460*1500)]
     for (uint32_t i = 0; i < topo->hosts.size(); i++) {

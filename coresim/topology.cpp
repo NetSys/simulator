@@ -132,8 +132,12 @@ double PFabricTopology::get_oracle_fct(Flow *f) {
     else {
         propagation_delay = 2 * 1000000.0 * num_hops * f->src->queue->propagation_delay; //us
     }
-    
-    uint32_t np = ceil(f->size / params.mss); // TODO: Must be a multiple of 1460
+   
+    double pkts = (double) f->size / params.mss;
+    uint32_t np = floor(pkts);
+    uint32_t leftover = (pkts - np) * params.mss;
+	double incl_overhead_bytes = (params.mss + f->hdr_size) * np + (leftover + f->hdr_size);
+
     double bandwidth = f->src->queue->rate / 1000000.0; // For us
     double transmission_delay;
     if (params.cut_through) {
@@ -150,15 +154,27 @@ double PFabricTopology::get_oracle_fct(Flow *f) {
         //std::cout << "pd: " << propagation_delay << " td: " << transmission_delay << std::endl;
     }
     else {
-        transmission_delay = 
-            (
-                (np + 1) * (params.mss + params.hdr_size) 
-                + 2.0 * params.hdr_size // ACK has to travel two hops
-            ) * 8.0 / bandwidth;
-        if (num_hops == 4) {
-            //1 packet and 1 ack
-            transmission_delay += 2 * (params.mss + 2*params.hdr_size) * 8.0 / (4 * bandwidth);  //TODO: 4 * bw is not right.
-        }
+		transmission_delay = (incl_overhead_bytes + 2.0 * f->hdr_size) * 8.0 / bandwidth;
+		if (num_hops == 4) {
+			// 1 packet and 1 ack
+			if (np == 0) {
+				// less than mss sized flow. the 1 packet is leftover sized.
+				transmission_delay += 2 * (leftover + 2*params.hdr_size) * 8.0 / (4 * bandwidth);
+				
+			} else {
+				// 1 packet is full sized
+				transmission_delay += 2 * (params.mss + 2*params.hdr_size) * 8.0 / (4 * bandwidth);
+			}
+		}
+        //transmission_delay = 
+        //    (
+        //        (np + 1) * (params.mss + params.hdr_size) + (leftover + params.hdr_size)
+        //        + 2.0 * params.hdr_size // ACK has to travel two hops
+        //    ) * 8.0 / bandwidth;
+        //if (num_hops == 4) {
+        //    //1 packet and 1 ack
+        //    transmission_delay += 2 * (params.mss + 2*params.hdr_size) * 8.0 / (4 * bandwidth);  //TODO: 4 * bw is not right.
+        //}
     }
     return (propagation_delay + transmission_delay); //us
 }

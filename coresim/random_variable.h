@@ -58,6 +58,15 @@ protected:
   CDFentry* table_;	// CDF table of (val_, cdf_)
 };
 
+// READ VALUE IN BYTES
+class EmpiricalBytesRandomVariable : public EmpiricalRandomVariable {
+public:
+  EmpiricalBytesRandomVariable(std::string filename, bool smooth = true);
+  int loadCDF(std::string filename);
+  
+  double sizeWithHeader;
+};
+
 /*
 Inherits from EmpricialRandomVariable since they both do flow sizes
 This one doesn't interpolate and does uniform/bimodal/trimodal/etc

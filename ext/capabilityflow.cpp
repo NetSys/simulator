@@ -53,10 +53,17 @@ void CapabilityFlow::send_pending_data()
     int capa_data_seq = this->capabilities.top()->data_seq_num;
     int capa_seq = this->use_capability();
 
-    Packet *p = this->send(next_seq_no, capa_seq, capa_data_seq, params.capability_third_level && this->size_in_pkt > params.capability_prio_thresh?2:1);
-    next_seq_no += mss;
+	Packet *p;
+	if (next_seq_no + mss <= this->size) {
+		p = this->send(next_seq_no, capa_seq, capa_data_seq, params.capability_third_level && this->size_in_pkt > params.capability_prio_thresh?2:1);
+		next_seq_no += mss;
+	} else {
+		p = this->send(next_seq_no, capa_seq, capa_data_seq, params.capability_third_level && this->size_in_pkt > params.capability_prio_thresh?2:1);
+		next_seq_no = this->size;
+	}
+
     if(debug_flow(this->id))
-        std::cout << get_current_time() << " flow " << this->id << " send pkt " << this->total_pkt_sent << "\n";
+        std::cout << get_current_time() << " flow " << this->id << " send pkt " << this->total_pkt_sent << " " << p->size << "\n";
 
     double td = src->queue->get_transmission_delay(p->size);
     assert(((SchedulingHost*) src)->host_proc_event == NULL);
@@ -79,6 +86,27 @@ void CapabilityFlow::send_pending_data_low_prio()
     add_to_event_queue(((SchedulingHost*) src)->host_proc_event);
 }
 
+void CapabilityFlow::receive_rts(Packet* p) {
+    if(debug_flow(p->flow->id))
+        std::cout << get_current_time() << " received RTS for flow " << p->flow->id << "\n";
+
+    this->rts_received = true;
+    set_capability_count();
+    ((CapabilityHost*)(this->dst))->hold_on = this->init_capa_size();
+    ((CapabilityHost*)(this->dst))->active_receiving_flows.push(this);
+
+    if( ((CapabilityHost*)(this->dst))->capa_proc_evt &&
+            ((CapabilityHost*)(this->dst))->capa_proc_evt->is_timeout_evt
+      )
+    {
+        ((CapabilityHost*)(this->dst))->capa_proc_evt->cancelled = true;
+        ((CapabilityHost*)(this->dst))->capa_proc_evt = NULL;
+    }
+
+    if(((CapabilityHost*)(this->dst))->capa_proc_evt == NULL){
+        ((CapabilityHost*)(this->dst))->schedule_capa_proc_evt(0, false);
+    }
+}
 
 void CapabilityFlow::receive(Packet *p)
 {
@@ -92,10 +120,10 @@ void CapabilityFlow::receive(Packet *p)
         if (this->first_byte_receive_time == -1) {
             this->first_byte_receive_time = get_current_time();
         }
-
-        if(!rts_received && !params.cut_through)
-            std::cout << get_current_time() << " flow " << this->id << " hasn't receive rts\n";
-        assert(this->rts_received || params.cut_through);
+        
+        if (!rts_received) {
+            receive_rts(p);
+        }
 
         if(packets_received.count(p->capa_data_seq) == 0){
             packets_received.insert(p->capa_data_seq);
@@ -152,24 +180,8 @@ void CapabilityFlow::receive(Packet *p)
     }
     else if(p->type == RTS_PACKET)
     {
-        if(debug_flow(p->flow->id))
-            std::cout << get_current_time() << " received RTS for flow " << p->flow->id << "\n";
-
-        this->rts_received = true;
-        set_capability_count();
-        ((CapabilityHost*)(this->dst))->hold_on = this->init_capa_size();
-        ((CapabilityHost*)(this->dst))->active_receiving_flows.push(this);
-
-        if( ((CapabilityHost*)(this->dst))->capa_proc_evt &&
-            ((CapabilityHost*)(this->dst))->capa_proc_evt->is_timeout_evt
-          )
-        {
-            ((CapabilityHost*)(this->dst))->capa_proc_evt->cancelled = true;
-            ((CapabilityHost*)(this->dst))->capa_proc_evt = NULL;
-        }
-
-        if(((CapabilityHost*)(this->dst))->capa_proc_evt == NULL){
-            ((CapabilityHost*)(this->dst))->schedule_capa_proc_evt(0, false);
+        if (!rts_received) {
+            this->receive_rts(p);
         }
     }
     else if(p->type == STATUS_PACKET)
@@ -214,7 +226,15 @@ bool CapabilityFlow::has_sibling_idle_source()
 Packet* CapabilityFlow::send(uint32_t seq, int capa_seq, int data_seq, int priority)
 {
     this->latest_data_pkt_send_time = get_current_time();
-    Packet *p = new Packet(get_current_time(), this, seq, priority, mss + hdr_size, src, dst);
+	
+	uint32_t pkt_size;
+	if (seq + mss > this->size) {
+		pkt_size = hdr_size + (this->size - seq);
+	} else {
+		pkt_size = hdr_size + mss;
+	}
+
+    Packet *p = new Packet(get_current_time(), this, seq, priority, pkt_size, src, dst);
     p->capability_seq_num_in_data = capa_seq;
     p->capa_data_seq = data_seq;
     total_pkt_sent++;

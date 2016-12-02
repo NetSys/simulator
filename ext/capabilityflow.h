@@ -26,6 +26,7 @@ public:
     CapabilityFlow(uint32_t id, double start_time, uint32_t size, Host *s, Host *d);
     virtual void start_flow();
     virtual void send_pending_data();
+    void receive_rts(Packet *p);
     virtual void receive(Packet *p);
     void send_pending_data_low_prio();
     Packet* send(uint32_t seq, int capa_seq, int data_seq, int priority);

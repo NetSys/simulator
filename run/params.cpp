@@ -170,6 +170,9 @@ void read_experiment_parameters(std::string conf_filename, uint32_t exp_type) {
             lineStream >> params.hdr_size;
             assert(params.hdr_size > 0);
         }
+        else if (key == "bytes_mode") {
+            lineStream >> params.bytes_mode;
+        }
         //else if (key == "dctcp_delayed_ack_freq") {
         //    lineStream >> params.dctcp_delayed_ack_freq;
         //}

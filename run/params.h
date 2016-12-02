@@ -24,6 +24,7 @@ class DCExpParams {
         uint32_t num_flows_to_run;
         double end_time;
         std::string cdf_or_flow_trace;
+        uint32_t bytes_mode;
         uint32_t cut_through;
         uint32_t mean_flow_size;
 
