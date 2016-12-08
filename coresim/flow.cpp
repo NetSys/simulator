@@ -67,14 +67,23 @@ void Flow::send_pending_data() {
     if (received_bytes < size) {
         uint32_t seq = next_seq_no;
         uint32_t window = cwnd_mss * mss + scoreboard_sack_bytes;
-        while ((seq + mss <= last_unacked_seq + window) &&
-                (seq + mss <= size)) {
+        while (
+            (seq + mss <= last_unacked_seq + window) &&
+            ((seq + mss <= size) || (seq != size && (size - seq < mss)))
+        ) {
             // TODO Make it explicit through the SACK list
             if (received.count(seq) == 0) {
                 send(seq);
             }
-            next_seq_no = seq + mss;
-            seq += mss;
+
+            if (seq + mss < size) {
+                next_seq_no = seq + mss;
+                seq += mss;
+            } else {
+                next_seq_no = size;
+                seq = size;
+            }
+
             if (retx_event == NULL) {
                 set_timeout(get_current_time() + retx_timeout);
             }
@@ -85,13 +94,20 @@ void Flow::send_pending_data() {
 Packet *Flow::send(uint32_t seq) {
     Packet *p = NULL;
 
+    uint32_t pkt_size;
+    if (seq + mss > this->size) {
+        pkt_size = this->size - seq + hdr_size;
+    } else {
+        pkt_size = mss + hdr_size;
+    }
+
     uint32_t priority = get_priority(seq);
     p = new Packet(
             get_current_time(), 
             this, 
             seq, 
             priority, 
-            mss + hdr_size, 
+            pkt_size, 
             src, 
             dst
             );
@@ -196,7 +212,11 @@ void Flow::receive_data_pkt(Packet* p) {
     while (s <= max_seq_no_recv) {
         if (received.count(s) > 0) {
             if (in_sequence) {
-                recv_till += mss;
+                if (recv_till + mss > this->size) {
+                    recv_till = this->size;
+                } else {
+                    recv_till += mss;
+                }
             } else {
                 sack_list.push_back(s);
             }
